@@ -177,6 +177,16 @@ namespace FileHelpers.Dynamic
         }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private bool mFieldNotIncluded = false;
+
+        /// <summary>Indicates that the field value not included to the output.</summary>
+        public bool FieldNotIncluded
+        {
+            get { return mFieldNotIncluded; }
+            set { mFieldNotIncluded = value; }
+        }
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly ConverterBuilder mConverter = new ConverterBuilder();
 
         /// <summary>
@@ -288,6 +298,9 @@ namespace FileHelpers.Dynamic
 
             if (mFieldNotEmpty)
                 attbs.AddAttribute("FieldNotEmpty()");
+
+            if (mFieldNotIncluded)
+                attbs.AddAttribute("FieldNotIncluded()");
 
             if (mFieldNullValue != null) {
                 if (mFieldNullValue is string)

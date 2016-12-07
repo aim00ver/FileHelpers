@@ -108,6 +108,7 @@
     </Compile>
     <Compile Include="Attributes\FieldCaptionAttribute.cs" />
     <Compile Include="Attributes\FieldHiddenAttribute.cs" />
+    <Compile Include="Attributes\FieldNotIncludedAttribute.cs" />
     <Compile Include="Attributes\FieldNotEmptyAttribute.cs" />
     <Compile Include="Attributes\FieldValueDiscardedAttribute.cs" />
     <Compile Include="Attributes\FieldIgnoredAttribute.cs" />
@@ -356,12 +357,14 @@
     <Compile Include="MasterDetail\Common.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="MasterDetail\MasterMultiDetails.cs" />
     <Compile Include="MasterDetail\MasterDetailEngine.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="MasterDetail\MasterDetails.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="MasterDetail\MultiMasterDetailStraightEngine.cs" />
     <Compile Include="MasterDetail\RecordAction.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -176,6 +176,11 @@ namespace FileHelpers
         public bool IsNotEmpty { get; set; }
 
         /// <summary>
+        /// Do not include the field value to the output
+        /// </summary>
+        public bool IsNotIncluded { get; set; }
+
+        /// <summary>
         /// Caption of the field displayed in header row (see EngineBase.GetFileHeader)
         /// </summary>
         internal string FieldCaption { get; set; }
@@ -354,6 +359,9 @@ namespace FileHelpers
                 // FieldNotEmpty
                 res.IsNotEmpty = mi.IsDefined(typeof(FieldNotEmptyAttribute), false);
 
+                // FieldNotIncluded
+                res.IsNotIncluded = mi.IsDefined(typeof(FieldNotIncludedAttribute), false);
+
                 // FieldArrayLength
                 if (fieldType.IsArray) {
                     res.IsArray = true;
@@ -422,6 +430,7 @@ namespace FileHelpers
             TrailingArray = false;
             IsArray = false;
             IsNotEmpty = false;
+            IsNotIncluded = false;
         }
 
         /// <summary>
@@ -519,6 +528,9 @@ namespace FileHelpers
         /// <returns>String representation of field</returns>
         internal string CreateFieldString(object fieldValue)
         {
+            if (IsNotIncluded)
+                return string.Empty;
+
             if (this.Converter == null) {
                 if (fieldValue == null)
                     return string.Empty;
@@ -946,6 +958,7 @@ namespace FileHelpers
             res.Discarded = Discarded;
             res.FieldFriendlyName = FieldFriendlyName;
             res.IsNotEmpty = IsNotEmpty;
+            res.IsNotIncluded = IsNotIncluded;
             res.FieldCaption = FieldCaption;
             res.Parent = Parent;
             res.ParentIndex = ParentIndex;
