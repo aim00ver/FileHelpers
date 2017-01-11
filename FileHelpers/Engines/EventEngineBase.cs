@@ -51,6 +51,8 @@ namespace FileHelpers
         /// </summary>
         public event AfterReadHandler<T> AfterReadRecord;
 
+        public event AfterReadWithDetailsHandler<T> AfterReadRecordWithDetails;
+
         /// <summary>
         /// Called in write operations just before the record is converted to a
         /// string to write it.
@@ -125,6 +127,14 @@ namespace FileHelpers
                 AfterReadRecord(this, e);
 
             return e.SkipThisRecord;
+        }
+
+        protected void OnAfterReadRecordWithDetails(string line, T record, bool lineChanged, int lineNumber,
+            Tuple<int, int> masterLocation, Dictionary<Type, Tuple<int, int>> detailsLocations)
+        {
+            var e = new AfterReadWithDetailsEventArgs<T>(this, line, lineChanged, record, lineNumber, masterLocation, detailsLocations);
+            if (AfterReadRecordWithDetails != null)
+                AfterReadRecordWithDetails(this, e);
         }
 
         /// <summary>

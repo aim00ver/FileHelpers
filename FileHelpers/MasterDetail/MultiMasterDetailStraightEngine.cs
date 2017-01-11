@@ -223,13 +223,14 @@ namespace FileHelpers.MasterDetail
 
                 while (currentLine != null)
                 {
+                    Type currType = null;
+
                     try
                     {
                         mTotalRecords++;
                         currentRecord++;
 
                         var skip = false;
-                        Type currType;
                         try
                         {
                             currType = mRecordSelector(this, currentLine);
@@ -284,6 +285,7 @@ namespace FileHelpers.MasterDetail
                                     if (skip == false)
                                         record.Master = lastMaster;
                                 }
+                                var detailLocations = new Dictionary<Type, Tuple<int, int>>();
                                 if (currentLine.Length > lineMaster.Length)
                                 {
                                     var detailsLine = currentLine.Substring(masterEndIndex);
@@ -295,6 +297,9 @@ namespace FileHelpers.MasterDetail
                                         var detailEndIndex = detailsLine.IndexOf(detailSelector.End, detailStartIndex);
                                         if (detailEndIndex < 0)
                                             detailEndIndex = detailsLine.Length;
+
+                                        detailLocations.Add(detailSelector.Detail, new Tuple<int, int>
+                                            (masterEndIndex + 1 + detailStartIndex, masterEndIndex + 1 + detailEndIndex - detailStartIndex));
 
                                         var lineDetails = detailsLine.Substring(detailStartIndex, detailEndIndex - detailStartIndex);
                                         var detailInfo = (RecordInfo)mRecordInfoHash[detailSelector.Detail];
@@ -320,19 +325,26 @@ namespace FileHelpers.MasterDetail
                                                     case ErrorMode.SaveAndContinue:
                                                         var err = new ErrorInfo
                                                         {
+                                                            mErrorType = ErrorInfo.ErrorTypeEnum.Detail,
+                                                            mFailedOnType = detailSelector.Detail,
                                                             mLineNumber = mLineNumber,
                                                             mExceptionInfo = ex,
-                                                            mRecordString = completeLine
+                                                            mRecordString = currentLine,
+                                                            mStart = detailLocations[detailSelector.Detail].Item1,
+                                                            mLength = detailLocations[detailSelector.Detail].Item2
                                                         };
                                                         //							err.mColumnNumber = mColumnNum;
 
                                                         mErrorManager.AddError(err);
-                                                        break;
+                                                        throw;//fail all record if detail failed
                                                 }
                                             }
                                         }
                                         record.Details.Add(detailSelector.Detail, tmpDetails.ToArray());
                                     }
+
+                                    OnAfterReadRecordWithDetails(currentLine, record, e.RecordLineChanged, LineNumber,
+                                        new Tuple<int, int>(0, masterEndIndex), detailLocations);
                                 }
                                 if (skip == false)
                                     resArray.Add(record);
@@ -349,14 +361,20 @@ namespace FileHelpers.MasterDetail
                             case ErrorMode.IgnoreAndContinue:
                                 break;
                             case ErrorMode.SaveAndContinue:
-                                var err = new ErrorInfo
+                                if (mErrorManager.Errors.Where(err => err.LineNumber == freader.LineNumber).Count() == 0)//error in master
                                 {
-                                    mLineNumber = freader.LineNumber,
-                                    mExceptionInfo = ex,
-                                    mRecordString = completeLine
-                                };
-
-                                mErrorManager.AddError(err);
+                                    var err = new ErrorInfo
+                                    {
+                                        mErrorType = ErrorInfo.ErrorTypeEnum.Master,
+                                        mFailedOnType = currType,
+                                        mLineNumber = freader.LineNumber,
+                                        mExceptionInfo = ex,
+                                        mRecordString = currentLine,
+                                        mStart = 0,
+                                        mLength = (currentLine == null ? 0 : currentLine.Length)
+                                    };
+                                    mErrorManager.AddError(err);
+                                }
                                 break;
                         }
                     }

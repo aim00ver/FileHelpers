@@ -13,6 +13,28 @@ namespace FileHelpers
     [DebuggerDisplay("Line: {LineNumber}. Error: {ExceptionInfo.Message}.")]
     public sealed class ErrorInfo
     {
+        public enum ErrorTypeEnum
+        {
+            Unknown,
+            Master,
+            Detail
+        }
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        internal ErrorTypeEnum mErrorType;
+        public ErrorTypeEnum ErrorType
+        {
+            get { return mErrorType; }
+        }
+
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        internal Type mFailedOnType;
+        /// <summary>The type of record/subrecord that caused the error</summary>
+        public Type FailedOnType
+        {
+            get { return mFailedOnType; }
+        }
+
         /// <summary>
         /// Contains error information of the <see cref="FileHelperEngine"/> class.
         /// </summary>
@@ -28,6 +50,21 @@ namespace FileHelpers
         public int LineNumber
         {
             get { return mLineNumber; }
+        }
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        internal int mStart;
+        /// <summary>The start position of record/subrecord that caused the error</summary>
+        public int Start
+        {
+            get { return mStart; }
+        }
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        internal int mLength;
+        /// <summary>The length of record/subrecord that caused the error</summary>
+        public int Length
+        {
+            get { return mLength; }
         }
 
         /// <summary>The string of the record of the error.</summary>

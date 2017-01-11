@@ -29,7 +29,7 @@ namespace FileHelpers.Events
     }
 
     /// <summary>Arguments for the <see cref="AfterReadHandler{T}"/></summary>
-    public sealed class AfterReadEventArgs<T>
+    public class AfterReadEventArgs<T>
         : AfterReadEventArgs
         where T : class
     {
@@ -53,5 +53,22 @@ namespace FileHelpers.Events
 
         /// <summary>The current record.</summary>
         public T Record { get; set; }
+    }
+
+    public class AfterReadWithDetailsEventArgs<T> : AfterReadEventArgs<T> where T : class
+    {
+        internal AfterReadWithDetailsEventArgs(EventEngineBase<T> engine,
+            string line,
+            bool lineChanged,
+            T newRecord,
+            int lineNumber,
+            Tuple<int, int> masterLocation,
+            Dictionary<Type, Tuple<int, int>> detailsLocations) : base(engine, line, lineChanged, newRecord, lineNumber)
+        {
+            MasterLocation = masterLocation;
+            DetailsLocations = detailsLocations;
+        }
+        public Tuple<int, int> MasterLocation { get; set; }
+        public Dictionary<Type, Tuple<int, int>> DetailsLocations { get; set; }
     }
 }

@@ -19,7 +19,7 @@ namespace FileHelpers.Events
     /// <param name="e">The event data.</param>
     public delegate void AfterReadHandler<T>(EngineBase engine, AfterReadEventArgs<T> e) where T : class;
 
-
+    public delegate void AfterReadWithDetailsHandler<T>(EngineBase engine, AfterReadWithDetailsEventArgs<T> e) where T : class;
     // ----  Write Operations  ----
 
     /// <summary>
