@@ -299,7 +299,7 @@ namespace FileHelpers.MasterDetail
                                 mTotalRecords++;
                                 record = new MasterDetails<TMaster, TDetail>();
                                 tmpDetails.Clear();
-                                var lastMaster = (TMaster) mMasterInfo.Operations.StringToRecord(line, valuesMaster);
+                                var lastMaster = (TMaster) mMasterInfo.Operations.StringToRecord(line, valuesMaster, ErrorManager);
 
                                 if (lastMaster != null)
                                     record.Master = lastMaster;
@@ -307,7 +307,7 @@ namespace FileHelpers.MasterDetail
                                 break;
 
                             case RecordAction.Detail:
-                                var lastChild = (TDetail) RecordInfo.Operations.StringToRecord(line, valuesDetail);
+                                var lastChild = (TDetail) RecordInfo.Operations.StringToRecord(line, valuesDetail, ErrorManager);
 
                                 if (lastChild != null)
                                     tmpDetails.Add(lastChild);

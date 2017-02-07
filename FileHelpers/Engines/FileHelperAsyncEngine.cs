@@ -305,7 +305,7 @@ namespace FileHelpers
 
 
                         if (skip == false) {
-                            if (RecordInfo.Operations.StringToRecord(mLastRecord, line, mLastRecordValues)) {
+                            if (RecordInfo.Operations.StringToRecord(mLastRecord, line, mLastRecordValues, ErrorManager)) {
                                 if (MustNotifyRead) // Avoid object creation
                                     skip = OnAfterReadRecord(currentLine, mLastRecord, e.RecordLineChanged, LineNumber);
                                 if (skip == false) {

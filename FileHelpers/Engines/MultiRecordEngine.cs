@@ -211,7 +211,7 @@ namespace FileHelpers
 
                             if (skip == false) {
                                 var values = new object[info.FieldCount];
-                                if (info.Operations.StringToRecord(record, line, values)) {
+                                if (info.Operations.StringToRecord(record, line, values, ErrorManager)) {
                                     if (MustNotifyRead) // Avoid object creation
                                         skip = OnAfterReadRecord(currentLine, record, e.RecordLineChanged, LineNumber);
 
@@ -644,7 +644,7 @@ namespace FileHelpers
                                                             "' which this engine is not configured to handle. Try adding this type to the constructor.");
                             }
                             var values = new object[info.FieldCount];
-                            mLastRecord = info.Operations.StringToRecord(line, values);
+                            mLastRecord = info.Operations.StringToRecord(line, values, ErrorManager);
 
                             if (MustNotifyRead)
                             {

@@ -550,7 +550,7 @@ namespace FileHelpers
         /// </summary>
         /// <param name="line">Line handler containing text</param>
         /// <returns></returns>
-        internal object ExtractFieldValue(LineInfo line)
+        internal object ExtractFieldValue(LineInfo line, ErrorManager ErrorManager)
         {
             //-> extract only what I need
 
@@ -582,7 +582,7 @@ namespace FileHelpers
                 if (Discarded)
                     return GetDiscardedNullValue();
                 else
-                    return AssignFromString(info, line).Value;
+                    return AssignFromString(info, line, ErrorManager).Value;
             }
             else {
                 if (ArrayMinLength <= 0)
@@ -601,7 +601,7 @@ namespace FileHelpers
                     line.mCurrentPos += CharsToDiscard;
 
                     try {
-                        var value = AssignFromString(info, line);
+                        var value = AssignFromString(info, line, ErrorManager);
 
                         if (value.NullValueUsed &&
                             i == 0 &&
@@ -662,89 +662,135 @@ namespace FileHelpers
         /// <param name="fieldString">Information extracted?</param>
         /// <param name="line">Underlying input data</param>
         /// <returns>Object to assign to field</returns>
-        private AssignResult AssignFromString(ExtractedInfo fieldString, LineInfo line)
+        private AssignResult AssignFromString(ExtractedInfo fieldString, LineInfo line, ErrorManager ErrorManager)
         {
             object val;
 
             var extractedString = fieldString.ExtractedString();
+            try
+            {
+                try
+                {
+                    if (IsNotEmpty && String.IsNullOrEmpty(extractedString))
+                    {
+                        throw new InvalidOperationException("The value is empty and must be populated.");
+                    }
+                    else if (this.Converter == null)
+                    {
+                        if (IsStringField)
+                            val = TrimString(extractedString);
+                        else
+                        {
+                            extractedString = extractedString.Trim();
 
-            try {
-                if (IsNotEmpty && String.IsNullOrEmpty(extractedString)) {
-                    throw new InvalidOperationException("The value is empty and must be populated.");
-                } else if (this.Converter == null) {
-                    if (IsStringField)
-                        val = TrimString(extractedString);
-                    else {
-                        extractedString = extractedString.Trim();
+                            if (extractedString.Length == 0)
+                            {
+                                return new AssignResult
+                                {
+                                    Value = GetNullValue(line),
+                                    NullValueUsed = true
+                                };
+                            }
+                            else
+                                val = Convert.ChangeType(extractedString, FieldTypeInternal, null);
+                        }
+                    }
+                    else
+                    {
+                        var trimmedString = extractedString.Trim();
 
-                        if (extractedString.Length == 0) {
-                            return new AssignResult {
+                        if (this.Converter.CustomNullHandling == false &&
+                            trimmedString.Length == 0)
+                        {
+                            return new AssignResult
+                            {
                                 Value = GetNullValue(line),
                                 NullValueUsed = true
                             };
                         }
                         else
-                            val = Convert.ChangeType(extractedString, FieldTypeInternal, null);
-                    }
-                }
-                else {
-                    var trimmedString = extractedString.Trim();
+                        {
+                            if (TrimMode == TrimMode.Both)
+                                val = this.Converter.StringToField(trimmedString);
+                            else
+                                val = this.Converter.StringToField(TrimString(extractedString));
 
-                    if (this.Converter.CustomNullHandling == false &&
-                        trimmedString.Length == 0) {
-                        return new AssignResult {
-                            Value = GetNullValue(line),
-                            NullValueUsed = true
-                        };
-                    }
-                    else {
-                        if (TrimMode == TrimMode.Both)
-                            val = this.Converter.StringToField(trimmedString);
-                        else
-                            val = this.Converter.StringToField(TrimString(extractedString));
-
-                        if (val == null) {
-                            return new AssignResult {
-                                Value = GetNullValue(line),
-                                NullValueUsed = true
-                            };
+                            if (val == null)
+                            {
+                                return new AssignResult
+                                {
+                                    Value = GetNullValue(line),
+                                    NullValueUsed = true
+                                };
+                            }
                         }
                     }
-                }
 
-                return new AssignResult {
-                    Value = val
-                };
-            }
-            catch (ConvertException ex) {
-                ex.FieldName = FieldInfo.Name;
-                ex.LineNumber = line.mReader.LineNumber;
-                ex.ColumnNumber = fieldString.ExtractedFrom + 1;
-                throw;
-            }
-            catch (BadUsageException) {
-                throw;
-            }
-            catch (Exception ex) {
-                if (this.Converter == null ||
-                    this.Converter.GetType().Assembly == typeof (FieldBase).Assembly) {
-                    throw new ConvertException(extractedString,
-                        FieldTypeInternal,
-                        FieldInfo.Name,
-                        line.mReader.LineNumber,
-                        fieldString.ExtractedFrom + 1,
-                        ex.Message,
-                        ex);
+                    return new AssignResult
+                    {
+                        Value = val
+                    };
                 }
-                else {
-                    throw new ConvertException(extractedString,
-                        FieldTypeInternal,
-                        FieldInfo.Name,
-                        line.mReader.LineNumber,
-                        fieldString.ExtractedFrom + 1,
-                        "Your custom converter: " + this.Converter.GetType().Name + " throws an " + ex.GetType().Name +
-                        " with the message: " + ex.Message,
-                        ex);
+                catch (ConvertException ex)
+                {
+                    ex.FieldName = FieldInfo.Name;
+                    ex.LineNumber = line.mReader.LineNumber;
+                    ex.ColumnNumber = fieldString.ExtractedFrom + 1;
+                    throw;
+                }
+                catch (BadUsageException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    if (this.Converter == null ||
+                        this.Converter.GetType().Assembly == typeof(FieldBase).Assembly)
+                    {
+                        throw new ConvertException(extractedString,
+                            FieldTypeInternal,
+                            FieldInfo.Name,
+                            line.mReader.LineNumber,
+                            fieldString.ExtractedFrom + 1,
+                            ex.Message,
+                            ex);
+                    }
+                    else
+                    {
+                        throw new ConvertException(extractedString,
+                            FieldTypeInternal,
+                            FieldInfo.Name,
+                            line.mReader.LineNumber,
+                            fieldString.ExtractedFrom + 1,
+                            "Your custom converter: " + this.Converter.GetType().Name + " throws an " + ex.GetType().Name +
+                            " with the message: " + ex.Message,
+                            ex);
+                    }
+                }
+            }
+            catch (Exception exception)
+            {
+                if (ErrorManager.ErrorMode == ErrorMode.ThrowException)
+                    throw;
+                else
+                {
+                    ErrorManager.AddError(new ErrorInfo()
+                    {
+                        mErrorType = ErrorInfo.ErrorTypeEnum.Unknown,
+                        mExceptionInfo = exception,
+                        mFailedOnType = FieldInfo.DeclaringType,
+                        //mRecordString = extractedString,
+                        mRecordString = line.mLineStr,
+                        mLineNumber = line.mReader.LineNumber,
+                        mStart = fieldString.ExtractedFrom + 1,
+                        mLength = fieldString.Length,
+                        mFieldName = FieldInfo.Name
+                    });
+                    return new AssignResult
+                    {
+                        Value = FieldInfo.FieldType.IsValueType ? Activator.CreateInstance(FieldInfo.FieldType) : null,
+                        NullValueUsed = !FieldInfo.FieldType.IsValueType
+                    };
                 }
             }
         }

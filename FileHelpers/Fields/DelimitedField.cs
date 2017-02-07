@@ -138,7 +138,8 @@ namespace FileHelpers
 
         private ExtractedInfo BasicExtractString(LineInfo line)
         {
-            if (IsLast && !IsArray) {
+            //we intentionally ignore delimiter after the last expected field as well as all data after it
+            /*if (IsLast && !IsArray) {
                 var sepPos = line.IndexOf(Separator);
 
                 if (sepPos == -1)
@@ -154,7 +155,7 @@ namespace FileHelpers
 
                 throw new BadUsageException(line.mReader.LineNumber, line.mCurrentPos, msg);
             }
-            else {
+            else */{
                 int sepPos = line.IndexOf(Separator);
 
                 if (sepPos == -1) {

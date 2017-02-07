@@ -36,13 +36,13 @@ namespace FileHelpers
         /// <param name="values">Values to assign to object</param>
         /// <returns>Object created or null if record skipped</returns>
         /// <exception cref="ConvertException">Could not convert data from input file</exception>
-        public object StringToRecord(LineInfo line, object[] values)
+        public object StringToRecord(LineInfo line, object[] values, ErrorManager ErrorManager)
         {
             if (MustIgnoreLine(line.mLineStr))
                 return null;
 
             for (int i = 0; i < RecordInfo.FieldCount; i++)
-                values[i] = RecordInfo.Fields[i].ExtractFieldValue(line);
+                values[i] = RecordInfo.Fields[i].ExtractFieldValue(line, ErrorManager);
 
             try {
                 // Assign all values via dynamic method that creates an object and assign values
@@ -78,13 +78,13 @@ namespace FileHelpers
         /// <param name="line">Line of data</param>
         /// <param name="values">Array of values extracted</param>
         /// <returns>true if we processed the line and updated object</returns>
-        public bool StringToRecord(object record, LineInfo line, object[] values)
+        public bool StringToRecord(object record, LineInfo line, object[] values, ErrorManager ErrorManager)
         {
             if (MustIgnoreLine(line.mLineStr))
                 return false;
 
             for (int i = 0; i < RecordInfo.FieldCount; i++)
-                values[i] = RecordInfo.Fields[i].ExtractFieldValue(line);
+                values[i] = RecordInfo.Fields[i].ExtractFieldValue(line, ErrorManager);
 
             try {
                 // Assign all values via dynamic method that

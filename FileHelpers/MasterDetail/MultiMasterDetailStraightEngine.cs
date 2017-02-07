@@ -277,7 +277,7 @@ namespace FileHelpers.MasterDetail
                             if (skip == false)
                             {
                                 var values = new object[info.FieldCount];
-                                if (info.Operations.StringToRecord(lastMaster, line, values))
+                                if (info.Operations.StringToRecord(lastMaster, line, values, mErrorManager))
                                 {
                                     if (MustNotifyRead) // Avoid object creation
                                         skip = OnAfterReadRecord(lineMaster, lastMaster, e.RecordLineChanged, LineNumber);
@@ -310,7 +310,7 @@ namespace FileHelpers.MasterDetail
                                             try
                                             {
                                                 line.ReLoad(lineDetail);
-                                                var lastChild = detailInfo.Operations.StringToRecord(line, valuesDetail);
+                                                var lastChild = detailInfo.Operations.StringToRecord(line, valuesDetail, ErrorManager);
                                                 if (lastChild != null)
                                                     tmpDetails.Add(lastChild);
                                             }

@@ -26,6 +26,12 @@ namespace FileHelpers
             get { return mErrorType; }
         }
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        internal string mFieldName;
+        public string FieldName
+        {
+            get { return mFieldName; }
+        }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         internal Type mFailedOnType;
