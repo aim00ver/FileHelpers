@@ -28,7 +28,8 @@ namespace FileHelpers
                     DateTime.Now.ToString(value);
                 }
                 catch {
-                    throw new BadUsageException("The format: '" + value + " is invalid for the DateTime Converter.");
+                    //?InvalidDateTimeConverterFormat"The format: '{0}' is invalid for the DateTime Converter."
+                    throw new BadUsageException("FileHelperMsg_InvalidDateTimeConverterFormat", (s) => { return String.Format(s, value); });
                 }
 
                 mDefaultDateTimeFormat = value;
@@ -74,9 +75,9 @@ namespace FileHelpers
         /// <param name="from">The source string.</param>
         /// <param name="errorMsg" >The custom error msg.</param>
         /// <exception cref="ConvertException">Throw exception with values</exception>
-        protected void ThrowConvertException(string from, string errorMsg)
-        {
-            throw new ConvertException(from, mDestinationType, errorMsg);
-        }
+        //protected void ThrowConvertException(string from, string errorMsg)
+        //{
+        //    throw new ConvertException(from, mDestinationType, errorMsg);
+        //}
     }
 }

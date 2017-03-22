@@ -106,9 +106,8 @@ namespace FileHelpers
                     if (!IsLast &&
                         !line.StartsWith(Separator) &&
                         !line.IsEOL()) {
-                        throw new BadUsageException(line,
-                            "The field " + this.FieldInfo.Name + " is quoted but the quoted char: " + quotedStr +
-                            " not is just before the separator (You can use [FieldTrim] to avoid this error)");
+                        //?QuotedCharBeforeSeparator"The field {0} is quoted but the quoted char: {1} not is just before the separator (You can use [FieldTrim] to avoid this error)"
+                        throw new BadUsageException(line, "FileHelperMsg_QuotedCharBeforeSeparator", (s) => { return String.Format(s, this.FieldInfo.Name, quotedStr); });
                     }
                     return res;
                 }
@@ -116,21 +115,15 @@ namespace FileHelpers
                     if (QuoteMode == QuoteMode.OptionalForBoth ||
                         QuoteMode == QuoteMode.OptionalForRead)
                         return BasicExtractString(line);
-                    else if (line.StartsWithTrim(quotedStr)) {
-                        throw new BadUsageException(
-                            string.Format(
-                                "The field '{0}' has spaces before the QuotedChar at line {1}. Use the TrimAttribute to by pass this error. Field String: {2}",
-                                FieldInfo.Name,
-                                line.mReader.LineNumber,
-                                line.CurrentString));
+                    else if (line.StartsWithTrim(quotedStr))
+                    {
+                        //?SpaceBeforeQuotedChar"The field '{0}' has spaces before the QuotedChar at line {1}. Use the TrimAttribute to by pass this error. Field String: {2}"
+                        throw new BadUsageException("FileHelperMsg_SpaceBeforeQuotedChar", (s) => { return string.Format(s, FieldInfo.Name, line.mReader.LineNumber, line.CurrentString); });
                     }
-                    else {
-                        throw new BadUsageException(
-                            string.Format(
-                                "The field '{0}' does not begin with the QuotedChar at line {1}. You can use FieldQuoted(QuoteMode.OptionalForRead) to allow optional quoted field. Field String: {2}",
-                                FieldInfo.Name,
-                                line.mReader.LineNumber,
-                                line.CurrentString));
+                    else
+                    {
+                        //?FieldNotStartsWithQuotedChar"The field '{0}' does not begin with the QuotedChar at line {1}. You can use FieldQuoted(QuoteMode.OptionalForRead) to allow optional quoted field. Field String: {2}"
+                        throw new BadUsageException("FileHelperMsg_FieldNotStartsWithQuotedChar", (s) => { return string.Format(s, FieldInfo.Name, line.mReader.LineNumber, line.CurrentString); });
                     }
                 }
             }
@@ -158,29 +151,29 @@ namespace FileHelpers
             else */{
                 int sepPos = line.IndexOf(Separator);
 
+                Func<string, string> str = (s) => { return s + s; };
+                string sa = str("test");
+
                 if (sepPos == -1) {
-                    if (IsLast && IsArray)
+                    if (IsLast /*&& IsArray*/)
                         return new ExtractedInfo(line);
 
                     if ( NextIsOptional == false) {
-                        string msg;
-
-                        if (IsFirst && line.EmptyFromPos()) {
-                            msg =
-                                string.Format(
-                                    "The line {0} is empty. Maybe you need to use the attribute [IgnoreEmptyLines] in your record class.",
-                                    line.mReader.LineNumber);
+                        Func<string, string> msg;
+                        string msgCode;
+                        if (IsFirst && line.EmptyFromPos())
+                        {
+                            //!"The line {0} is empty. Maybe you need to use the attribute [IgnoreEmptyLines] in your record class."
+                            msg = (s) => string.Format(s, line.mReader.LineNumber);
+                            msgCode = "FileHelperMsg_LineIsEmpty";
                         }
                         else {
-                            msg =
-                                string.Format(
-                                    "Delimiter '{0}' not found after field '{1}' (the record has less fields, the delimiter is wrong or the next field must be marked as optional).",
-                                    Separator,
-                                    this.FieldInfo.Name,
-                                    line.mReader.LineNumber);
+                            //!"Delimiter '{0}' not found after field '{1}' (the record has less fields, the delimiter is wrong or the next field must be marked as optional)."
+                            msg = (s) => string.Format(s, Separator, this.FieldInfo.Name, line.mReader.LineNumber);
+                            msgCode = "FileHelperMsg_DelimiterNotFoundAfterField";
                         }
 
-                        throw new FileHelpersException(line.mReader.LineNumber, line.mCurrentPos, msg);
+                        throw new FileHelpersException(line.mReader.LineNumber, line.mCurrentPos, msgCode, msg);
                     }
                     else
                         sepPos = line.mLineStr.Length;
@@ -206,8 +199,8 @@ namespace FileHelpers
             if (hasNewLine &&
                 (QuoteMultiline == MultilineMode.AllowForRead ||
                  QuoteMultiline == MultilineMode.NotAllow)) {
-                throw new BadUsageException("One value for the field " + this.FieldInfo.Name +
-                                            " has a new line inside. To allow write this value you must add a FieldQuoted attribute with the multiline option in true.");
+                //?NewLineInsideValue"One value for the field {0} has a new line inside. To allow write this value you must add a FieldQuoted attribute with the multiline option in true."
+                throw new BadUsageException("FileHelperMsg_NewLineInsideValue", (s) => { return String.Format(s, this.FieldInfo.Name); });
             }
 
             // Add Quotes If:

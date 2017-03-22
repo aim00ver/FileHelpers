@@ -19,10 +19,10 @@ namespace FileHelpers
         public string FieldStringValue { get; private set; }
 
         /// <summary>Extra info about the error.</summary>
-        public string MessageExtra { get; private set; }
+        public Func<string, string> MessageExtra { get; private set; }
 
         /// <summary>The message without the Line, Column and FieldName.</summary>
-        public string MessageOriginal { get; private set; }
+        //public string MessageOriginal { get; private set; }
 
         /// <summary>The name of the field related to the exception. (null for unknown)</summary>
         public string FieldName { get; internal set; }
@@ -32,6 +32,7 @@ namespace FileHelpers
 
         /// <summary>The estimate column where the error was found. (-1 is unknown)</summary>
         public int ColumnNumber { get; internal set; }
+        public string CodeExtra { get; private set; }
 
         #endregion
 
@@ -43,7 +44,7 @@ namespace FileHelpers
         /// <param name="origValue">The value to convert.</param>
         /// <param name="destType">The destination Type.</param>
         public ConvertException(string origValue, Type destType)
-            : this(origValue, destType, string.Empty) {}
+            : this(origValue, destType, "", FileHelpersException.SimpleMessageFunc) { }
 
 
         /// <summary>
@@ -52,8 +53,8 @@ namespace FileHelpers
         /// <param name="origValue">The value to convert.</param>
         /// <param name="destType">The destination Type.</param>
         /// <param name="extraInfo">Additional info of the error.</param>
-        public ConvertException(string origValue, Type destType, string extraInfo)
-            : this(origValue, destType, string.Empty, -1, -1, extraInfo, null) {}
+        public ConvertException(string origValue, Type destType, string extraCode, Func<string, string> extraInfo)
+            : this(origValue, destType, string.Empty, -1, -1, extraCode, extraInfo, null) { }
 
         /// <summary>
         /// Create a new ConvertException object
@@ -70,31 +71,32 @@ namespace FileHelpers
             string fieldName,
             int lineNumber,
             int columnNumber,
-            string extraInfo,
+            string extraCode,
+            Func<string, string> extraInfo,
             Exception innerEx)
-            : base(MessageBuilder(origValue, destType, fieldName, lineNumber, columnNumber, extraInfo), innerEx)
+            : base("FileHelperMsg_ConversionError", MessageBuilder(origValue, destType, fieldName, lineNumber, columnNumber, extraInfo), innerEx)
         {
-            MessageOriginal = string.Empty;
+            //MessageOriginal = string.Empty;
             FieldStringValue = origValue;
             FieldType = destType;
             LineNumber = lineNumber;
             ColumnNumber = columnNumber;
             FieldName = fieldName;
+            CodeExtra = extraCode;
             MessageExtra = extraInfo;
 
-            if (origValue != null &&
-                destType != null)
-                MessageOriginal = "Error Converting '" + origValue + "' to type: '" + destType.Name + "'. ";
+            //if (origValue != null && destType != null)
+            //   MessageOriginal = MessageBuilder(origValue, destType, fieldName, lineNumber, columnNumber, extraInfo)("Line: {0}. Column: {1}. Field: {2}. Error Converting '{3}' to type: '{4}'.");
         }
 
-        private static string MessageBuilder(string origValue,
+        private static Func<string, string> MessageBuilder(string origValue,
             Type destType,
             string fieldName,
             int lineNumber,
             int columnNumber,
-            string extraInfo)
+            Func<string, string> extraInfo)
         {
-            var res = string.Empty;
+            /*var res = "Line: {0}. Column: {1}. Field: {2}. Error Converting '{3}' to type: '{4}'.";
             if (lineNumber >= 0)
                 res += "Line: " + lineNumber.ToString() + ". ";
 
@@ -104,13 +106,14 @@ namespace FileHelpers
             if (!string.IsNullOrEmpty(fieldName))
                 res += "Field: " + fieldName + ". ";
 
-            if (origValue != null &&
-                destType != null)
+            if (origValue != null && destType != null)
                 res += "Error Converting '" + origValue + "' to type: '" + destType.Name + "'. ";
-
+            
             res += extraInfo;
 
-            return res;
+            return res;*/
+            //!"Line: {0}. Column: {1}. Field: {2}. Error Converting '{3}' to type: '{4}'."
+            return (s) => { return String.Format(s, lineNumber.ToString(), columnNumber.ToString(), fieldName, origValue, destType?.Name); };
         }
 
         #endregion

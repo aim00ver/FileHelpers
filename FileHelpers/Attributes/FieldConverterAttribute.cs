@@ -113,8 +113,8 @@ namespace FileHelpers
                     convType = typeof (ConvertHelpers.GuidConverter);
                     break;
                 default:
-                    throw new BadUsageException("Converter '" + converter.ToString() +
-                                                "' not found, you must specify a valid converter.");
+                    //?ConverterNotFound"Converter '{0}' not found, you must specify a valid converter."
+                    throw new BadUsageException("FileHelperMsg_ConverterNotFound", (s) => { return String.Format(s, converter.ToString()); });
             }
             //mType = type;
 
@@ -184,13 +184,12 @@ namespace FileHelpers
 
                 if (constructor == null) {
                     if (args.Length == 0) {
-                        throw new BadUsageException("Empty constructor for converter: " + convType.Name +
-                                                    " was not found. You must add a constructor without args (can be public or private)");
+                        //?EmptyConstructorForConverter"Empty constructor for converter: {0} was not found. You must add a constructor without args (can be public or private)"
+                        throw new BadUsageException("FileHelperMsg_EmptyConstructorForConverter", (s) => { return String.Format(s, convType.Name); });
                     }
                     else {
-                        throw new BadUsageException("Constructor for converter: " + convType.Name +
-                                                    " with these arguments: (" + ArgsDesc(args) +
-                                                    ") was not found. You must add a constructor with this signature (can be public or private)");
+                        //?ConstructorForConverterNotFound"Constructor for converter: {0} with these arguments: ({1}) was not found. You must add a constructor with this signature (can be public or private)"
+                        throw new BadUsageException("FileHelperMsg_ConstructorForConverterNotFound", (s) => { return String.Format(s, convType.Name, ArgsDesc(args)); });
                     }
                 }
 
@@ -205,7 +204,8 @@ namespace FileHelpers
                 Converter = new EnumConverter(convType);
 
             else
-                throw new BadUsageException("The custom converter must inherit from ConverterBase");
+                //!"The custom converter must inherit from ConverterBase"
+                throw new BadUsageException("FileHelperMsg_CustomConverterMustInheritConverterBase", FileHelpersException.SimpleMessageFunc);
         }
 
         #endregion
@@ -215,8 +215,8 @@ namespace FileHelpers
         private static Type[] ArgsToTypes(object[] args)
         {
             if (args == null) {
-                throw new BadUsageException(
-                    "The args to the constructor can be null, if you do not want to pass anything into them.");
+                //?ArgsCanBeNull"The args to the constructor can be null, if you do not want to pass anything into them."
+                throw new BadUsageException("FileHelperMsg_ArgsCanBeNull", FileHelpersException.SimpleMessageFunc);
             }
 
             var res = new Type[args.Length];
@@ -294,9 +294,8 @@ namespace FileHelpers
             }
 
             if (valid == false) {
-                throw new BadUsageException(
-                    "The converter of the field: '" + fi.Name + "' is wrong. The field is of Type: " + fieldType.Name +
-                    " and the converter is for type: " + Kind.ToString());
+                //?ConverterIsWrong"The converter of the field: '{0}' is wrong. The field is of Type: {1} and the converter is for type: {2}"
+                throw new BadUsageException("FileHelperMsg_ConverterIsWrong", (s) => { return String.Format(s, fi.Name, fieldType.Name, Kind.ToString()); });
             }
         }
     }

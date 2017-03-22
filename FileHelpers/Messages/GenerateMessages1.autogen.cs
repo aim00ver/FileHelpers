@@ -1,4 +1,5 @@
-﻿using System; 
+﻿/*
+using System; 
 
 namespace FileHelpers
 {
@@ -450,5 +451,5 @@ internal WrongConverterClass(): base(@"The converter for the field: $FieldName$ 
 
 
 }
-}
+}*/
 

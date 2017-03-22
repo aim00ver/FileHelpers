@@ -82,11 +82,12 @@ namespace FileHelpers
 
             for (int i = 0; i < mTypes.Length; i++) {
                 if (mTypes[i] == null)
-                    throw new BadUsageException("The type at index " + i + " is null.");
+                    //?TypeIsNullAtIndex"The type at index {0} is null."
+                    throw new BadUsageException("FileHelperMsg_TypeIsNullAtIndex", (s) => { return String.Format(s, i); });
 
                 if (mRecordInfoHash.Contains(mTypes[i])) {
-                    throw new BadUsageException("The type '" + mTypes[i].Name +
-                                                " is already in the engine. You can't pass the same type twice to the constructor.");
+                    //?TypeIsPassedTwice"The type '{0}' is already in the engine. You can't pass the same type twice to the constructor."
+                    throw new BadUsageException("FileHelperMsg_TypeIsPassedTwice", (s) => { return String.Format(s, mTypes[i].Name); });
                 }
 
                 mMultiRecordInfo[i] = FileHelpers.RecordInfo.Resolve(mTypes[i]);
@@ -131,11 +132,12 @@ namespace FileHelpers
         public object[] ReadStream(IRecordReader reader)
         {
             if (reader == null)
-                throw new ArgumentNullException("reader", "The reader of the Stream can´t be null");
+                //?StreamReaderIsNull"The reader of the Stream can´t be null"
+                throw new BadUsageException("FileHelperMsg_StreamReaderIsNull", FileHelpersException.SimpleMessageFunc);
 
             if (mRecordSelector == null) {
-                throw new BadUsageException(
-                    "The Recordselector can´t be null, please pass a not null Selector in the constructor.");
+                //?RecordselectorIsNull"The Recordselector can´t be null, please pass a not null Selector in the constructor."
+                throw new BadUsageException("FileHelperMsg_RecordselectorIsNull", FileHelpersException.SimpleMessageFunc);
             }
 
             ResetFields();
@@ -184,14 +186,15 @@ namespace FileHelpers
                             currType = mRecordSelector(this, currentLine);
                         }
                         catch (Exception ex) {
-                            throw new Exception("Selector failed to process correctly", ex);
+                            //?SelectorFailed"Selector failed to process correctly"
+                            throw new FileHelpersException("FileHelperMsg_SelectorFailed", FileHelpersException.SimpleMessageFunc, ex);
                         }
 
                         if (currType != null) {
                             var info = (RecordInfo) mRecordInfoHash[currType];
                             if (info == null) {
-                                throw new BadUsageException("A record is of type '" + currType.Name +
-                                                            "' which this engine is not configured to handle. Try adding this type to the constructor.");
+                                //?RecordTypeNotConfigured"A record is of type '{0}' which this engine is not configured to handle. Try adding this type to the constructor."
+                                throw new BadUsageException("FileHelperMsg_RecordTypeNotConfigured", (s) => { return String.Format(s, currType.Name); });
                             }
 
                             var record = info.Operations.CreateRecordHandler();
@@ -304,10 +307,12 @@ namespace FileHelpers
         public void WriteStream(TextWriter writer, IEnumerable records, int maxRecords)
         {
             if (writer == null)
-                throw new ArgumentNullException("writer", "The writer of the Stream can be null");
+                //?StreamWriterIsNull"The writer of the Stream cannot be null"
+                throw new FileHelpersException("FileHelperMsg_StreamWriterIsNull", FileHelpersException.SimpleMessageFunc);
 
             if (records == null)
-                throw new ArgumentNullException("records", "The records can be null. Try with an empty array.");
+                //?RecordsCannotBeNull"The records can not be null. Try with an empty array."
+                throw new FileHelpersException("FileHelperMsg_RecordsCannotBeNull", FileHelpersException.SimpleMessageFunc);
 
             ResetFields();
 
@@ -340,7 +345,8 @@ namespace FileHelpers
                     break;
                 try {
                     if (rec == null)
-                        throw new BadUsageException("The record at index " + recIndex + " is null.");
+                        //?RecordIsNullAtIndex"The record at index {0} is null."
+                        throw new BadUsageException("FileHelperMsg_RecordIsNullAtIndex", (s) => { return String.Format(s, recIndex); });
 
                     bool skip = false;
 
@@ -353,9 +359,8 @@ namespace FileHelpers
                     var info = (IRecordInfo) mRecordInfoHash[rec.GetType()];
 
                     if (info == null) {
-                        throw new BadUsageException("The record at index " + recIndex + " is of type '" +
-                                                    rec.GetType().Name +
-                                                    "' and the engine dont handle this type. You can add it to the constructor.");
+                        //?RecordCannotBeHandledAtIndex"The record at index {0} is of type '{1}' and the engine dont handle this type. You can add it to the constructor."
+                        throw new BadUsageException("FileHelperMsg_RecordCannotBeHandledAtIndex", (s) => { return String.Format(s, recIndex, rec.GetType().Name); });
                     }
 
                     if (skip == false) {
@@ -448,12 +453,14 @@ namespace FileHelpers
         private static Type GetFirstType(Type[] types)
         {
             if (types == null)
-                throw new BadUsageException("A null Type[] is not valid for the MultiRecordEngine.");
+                //?NullTypeArrNotValidMultiRecordEngine"A null Type[] is not valid for the MultiRecordEngine."
+                throw new BadUsageException("FileHelperMsg_NullTypeArrNotValidMultiRecordEngine", FileHelpersException.SimpleMessageFunc);
             if (types.Length == 0)
-                throw new BadUsageException("An empty Type[] is not valid for the MultiRecordEngine.");
+                //?EmptyTypeArrNotValidMultiRecordEngine"An empty Type[] is not valid for the MultiRecordEngine."
+                throw new BadUsageException("FileHelperMsg_EmptyTypeArrNotValidMultiRecordEngine", FileHelpersException.SimpleMessageFunc);
             if (types.Length == 1) {
-                throw new BadUsageException(
-                    "You only provided one type to the engine constructor. You need 2 or more types, for one type you can use the FileHelperEngine.");
+                //?SecondTypeIsMissing"You only provided one type to the engine constructor. You need 2 or more types, for one type you can use the FileHelperEngine."
+                throw new BadUsageException("FileHelperMsg_SecondTypeIsMissing", FileHelpersException.SimpleMessageFunc);
             }
             return types[0];
         }
@@ -500,7 +507,8 @@ namespace FileHelpers
         public void BeginReadStream(IRecordReader reader)
         {
             if (reader == null)
-                throw new ArgumentNullException("The TextReader can´t be null.");
+                //?TextReaderIsNull"The TextReader can´t be null."
+                throw new FileHelpersException("FileHelperMsg_TextReaderIsNull", FileHelpersException.SimpleMessageFunc);
 
             ResetFields();
             mHeaderText = String.Empty;
@@ -516,7 +524,7 @@ namespace FileHelpers
                         break;
                 }
             }
-
+            
             mAsyncReader = new ForwardReader(reader, RecordInfo.IgnoreLast, mLineNumber) {
                 DiscardForward = true
             };
@@ -607,7 +615,8 @@ namespace FileHelpers
         public object ReadNext()
         {
             if (mAsyncReader == null)
-                throw new BadUsageException("Before call ReadNext you must call BeginReadFile or BeginReadStream.");
+                //?ReadNotStarted"Before call ReadNext you must call BeginReadFile or BeginReadStream."
+                throw new BadUsageException("FileHelperMsg_ReadNotStarted", FileHelpersException.SimpleMessageFunc);
 
             ReadNextRecord();
 
@@ -640,8 +649,8 @@ namespace FileHelpers
                         {
                             var info = (RecordInfo) mRecordInfoHash[currType];
                             if (info == null) {
-                                throw new BadUsageException("A record is of type '" + currType.Name +
-                                                            "' which this engine is not configured to handle. Try adding this type to the constructor.");
+                                //?RecordTypeNotConfigured"A record is of type '{0}' which this engine is not configured to handle. Try adding this type to the constructor."
+                                throw new BadUsageException("FileHelperMsg_RecordTypeNotConfigured", (s) => { return String.Format(s, currType.Name); });
                             }
                             var values = new object[info.FieldCount];
                             mLastRecord = info.Operations.StringToRecord(line, values, ErrorManager);
@@ -705,7 +714,8 @@ namespace FileHelpers
         public object[] ReadNexts(int numberOfRecords)
         {
             if (mAsyncReader == null)
-                throw new BadUsageException("Before call ReadNext you must call BeginReadFile or BeginReadStream.");
+                //?ReadNotStarted"Before call ReadNext you must call BeginReadFile or BeginReadStream."
+                throw new BadUsageException("FileHelperMsg_ReadNotStarted", FileHelpersException.SimpleMessageFunc);
 
             var arr = new ArrayList(numberOfRecords);
 
@@ -728,8 +738,8 @@ namespace FileHelpers
         IEnumerator IEnumerable.GetEnumerator()
         {
             if (mAsyncReader == null)
-                throw new FileHelpersException("You must call BeginRead before use the engine in a foreach loop.");
-
+                //!"You must call BeginRead before use the engine in a foreach loop."
+                throw new FileHelpersException("FileHelperMsg_MustCallBeginReadBeforeLoop", FileHelpersException.SimpleMessageFunc);
             return new AsyncEnumerator(this);
         }
 
@@ -797,10 +807,12 @@ namespace FileHelpers
         public void WriteNext(object record)
         {
             if (mAsyncWriter == null)
-                throw new BadUsageException("Before call WriteNext you must call BeginWriteFile or BeginWriteStream.");
+                //?WriteNotStarted"Before call WriteNext you must call BeginWriteFile or BeginWriteStream."
+                throw new BadUsageException("FileHelperMsg_WriteNotStarted", FileHelpersException.SimpleMessageFunc);
 
             if (record == null)
-                throw new BadUsageException("The record to write can´t be null.");
+                //?WriteRecordIsNull"The record to write can´t be null."
+                throw new BadUsageException("FileHelperMsg_WriteRecordIsNull", FileHelpersException.SimpleMessageFunc);
 
             WriteRecord(record);
         }
@@ -814,17 +826,20 @@ namespace FileHelpers
         public void WriteNexts(IEnumerable records)
         {
             if (mAsyncWriter == null)
-                throw new BadUsageException("Before call WriteNext you must call BeginWriteFile or BeginWriteStream.");
+                //?WriteNotStarted"Before call WriteNext you must call BeginWriteFile or BeginWriteStream."
+                throw new BadUsageException("FileHelperMsg_WriteNotStarted", FileHelpersException.SimpleMessageFunc);
 
             if (records == null)
-                throw new ArgumentNullException("records", "The record to write can´t be null.");
+                //?WriteRecordIsNull"The record to write can´t be null."
+                throw new BadUsageException("FileHelperMsg_WriteRecordIsNull", FileHelpersException.SimpleMessageFunc);
 
             int nro = 0;
             foreach (var rec in records) {
                 nro++;
 
                 if (rec == null)
-                    throw new BadUsageException("The record at index " + nro + " is null.");
+                    //?RecordIsNullAtIndex"The record at index {0} is null."
+                    throw new BadUsageException("FileHelperMsg_RecordIsNullAtIndex", (s) => { return String.Format(s, nro); });
 
                 WriteRecord(rec);
             }
@@ -841,8 +856,8 @@ namespace FileHelpers
                 var info = (IRecordInfo) mRecordInfoHash[record.GetType()];
 
                 if (info == null) {
-                    throw new BadUsageException("A record is of type '" + record.GetType().Name +
-                                                "' and the engine dont handle this type. You can add it to the constructor.");
+                    //?RecordCannotBeHandled"A record is of type '{0}' and the engine don't handle this type. You can add it to the constructor."
+                    throw new BadUsageException("FileHelperMsg_RecordCannotBeHandled", (s) => { return String.Format(s, record.GetType().Name); });
                 }
 
                 currentLine = info.Operations.RecordToString(record);
@@ -880,7 +895,8 @@ namespace FileHelpers
         public void BeginWriteStream(TextWriter writer)
         {
             if (writer == null)
-                throw new ArgumentException("The TextWriter can´t be null.", "writer");
+                //?TextWriterIsNull"The TextWriter can´t be null."
+                throw new BadUsageException("FileHelperMsg_TextWriterIsNull", FileHelpersException.SimpleMessageFunc);
 
             ResetFields();
             mAsyncWriter = writer;

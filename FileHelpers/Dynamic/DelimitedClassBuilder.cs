@@ -118,7 +118,8 @@ namespace FileHelpers.Dynamic
         internal override void AddAttributesCode(AttributesBuilder attbs, NetLanguage lang)
         {
             if (mDelimiter == string.Empty)
-                throw new BadUsageException("The Delimiter of the DelimiterClassBuilder can't be null or empty.");
+                //?DelimiterIsEmpty"The Delimiter of the DelimiterClassBuilder can't be null or empty."
+                throw new BadUsageException("FileHelperMsg_DelimiterIsEmpty", FileHelpersException.SimpleMessageFunc);
             else
                 attbs.AddAttribute("DelimitedRecord(" + GetDelimiter(mDelimiter, lang) + ")");
         }

@@ -118,12 +118,13 @@ namespace FileHelpers.MasterDetail
             for (int i = 0; i < mTypes.Length; i++)
             {
                 if (mTypes[i] == null)
-                    throw new BadUsageException("The type at index " + i + " is null.");
+                    //?TypeIsNullAtIndex"The type at index {0} is null."
+                    throw new BadUsageException("FileHelperMsg_TypeIsNullAtIndex", (s) => { return String.Format(s, i); });
 
                 if (mRecordInfoHash.ContainsKey(mTypes[i].Master))
                 {
-                    throw new BadUsageException("The type '" + mTypes[i].Master.Name +
-                                                " is already in the engine. You can't pass the same type twice to the constructor.");
+                    //?TypeIsPassedTwice"The type '{0}' is already in the engine. You can't pass the same type twice to the constructor."
+                    throw new BadUsageException("FileHelperMsg_TypeIsPassedTwice", (s) => { return String.Format(s, mTypes[i].Master.Name); });
                 }
 
                 mMultiRecordInfo[i] = FileHelpers.RecordInfo.Resolve(mTypes[i].Master);
@@ -175,12 +176,13 @@ namespace FileHelpers.MasterDetail
         public MasterMultiDetails[] ReadStream(IRecordReader reader)
         {
             if (reader == null)
-                throw new ArgumentNullException("reader", "The reader of the Stream can´t be null");
+                //?StreamReaderIsNull"The reader of the Stream can´t be null"
+                throw new BadUsageException("FileHelperMsg_StreamReaderIsNull", FileHelpersException.SimpleMessageFunc);
 
             if (mRecordSelector == null)
             {
-                throw new BadUsageException(
-                    "The Recordselector can´t be null, please pass a not null Selector in the constructor.");
+                //?RecordselectorIsNull"The Recordselector can´t be null, please pass a not null Selector in the constructor."
+                throw new BadUsageException("FileHelperMsg_RecordselectorIsNull", FileHelpersException.SimpleMessageFunc);
             }
 
             ResetFields();
@@ -237,7 +239,8 @@ namespace FileHelpers.MasterDetail
                         }
                         catch (Exception ex)
                         {
-                            throw new Exception("Selector failed to process correctly", ex);
+                            //?SelectorFailed"Selector failed to process correctly"
+                            throw new FileHelpersException("FileHelperMsg_SelectorFailed", FileHelpersException.SimpleMessageFunc, ex);
                         }
 
                         if (currType != null)
@@ -245,8 +248,8 @@ namespace FileHelpers.MasterDetail
                             var info = (RecordInfo) mRecordInfoHash[currType];
                             if (info == null)
                             {
-                                throw new BadUsageException("A record is of type '" + currType.Name +
-                                                            "' which this engine is not configured to handle. Try adding this type to the constructor.");
+                                //?RecordTypeNotConfigured"A record is of type '{0}' which this engine is not configured to handle. Try adding this type to the constructor."
+                                throw new BadUsageException("FileHelperMsg_RecordTypeNotConfigured", (s) => { return String.Format(s, currType.Name); });
                             }
                             record = new MasterMultiDetails();
 
@@ -446,10 +449,12 @@ namespace FileHelpers.MasterDetail
         public void WriteStream(TextWriter writer, IEnumerable<MasterMultiDetails> records, int maxRecords)
         {
             if (writer == null)
-                throw new ArgumentNullException("writer", "The writer of the Stream can be null");
+                //?StreamWriterIsNull"The writer of the Stream can be null"
+                throw new BadUsageException("FileHelperMsg_StreamWriterIsNull", FileHelpersException.SimpleMessageFunc);
 
             if (records == null)
-                throw new ArgumentNullException("records", "The records can be null. Try with an empty array.");
+                //?RecordsCannotBeNull"The records cannot be null. Try with an empty array."
+                throw new BadUsageException("FileHelperMsg_RecordsCannotBeNull", FileHelpersException.SimpleMessageFunc);
 
             ResetFields();
 
@@ -486,7 +491,8 @@ namespace FileHelpers.MasterDetail
                 try
                 {
                     if (rec == null)
-                        throw new BadUsageException("The record at index " + recIndex + " is null.");
+                        //?RecordIsNullAtIndex"The record at index {0} is null."
+                        throw new BadUsageException("FileHelperMsg_RecordIsNullAtIndex", (s) => { return String.Format(s, recIndex); });
 
                     bool skip = false;
 
@@ -500,9 +506,8 @@ namespace FileHelpers.MasterDetail
 
                     if (info == null)
                     {
-                        throw new BadUsageException("The record at index " + recIndex + " is of type '" +
-                                                    rec.GetType().Name +
-                                                    "' and the engine dont handle this type. You can add it to the constructor.");
+                        //?RecordCannotBeHandledAtIndex"The record at index {0} is of type '{1}' and the engine dont handle this type. You can add it to the constructor."
+                        throw new BadUsageException("FileHelperMsg_RecordCannotBeHandledAtIndex", (s) => { return String.Format(s, recIndex, rec.GetType().Name); });
                     }
 
                     if (skip == false)
@@ -518,9 +523,8 @@ namespace FileHelpers.MasterDetail
                             var detailsSelector = mDetailSelectorHash[rec.Master.GetType()].FirstOrDefault(x => x.Detail == details.Key);
                             if (detailsInfo == null || detailsSelector == null)
                             {
-                                throw new BadUsageException("The record at index " + recIndex + " is of type '" +
-                                                    details.Key.Name +
-                                                    "' and the engine dont handle this type. You can add it to the constructor.");
+                                //?RecordCannotBeHandledAtIndex"The record at index {0} is of type '{1}' and the engine dont handle this type. You can add it to the constructor."
+                                throw new BadUsageException("FileHelperMsg_RecordCannotBeHandledAtIndex", (s) => { return String.Format(s, recIndex, details.Key.Name); });
                             }
                             currentLine += detailsSelector.Start;
                             for (var d = 0; d < details.Value.Length; d++)
@@ -621,9 +625,11 @@ namespace FileHelpers.MasterDetail
         private static Type GetFirstType(MasterMultiDetailsInfo[] types)
         {
             if (types == null)
-                throw new BadUsageException("A null Type[] is not valid for the MultiRecordEngine.");
+                //?NullTypeArrNotValidMultiRecordEngine"A null Type[] is not valid for the MultiRecordEngine."
+                throw new BadUsageException("FileHelperMsg_NullTypeArrNotValidMultiRecordEngine", FileHelpersException.SimpleMessageFunc);
             if (types.Length == 0)
-                throw new BadUsageException("An empty Type[] is not valid for the MultiRecordEngine.");
+                //?EmptyTypeArrNotValidMultiRecordEngine"An empty Type[] is not valid for the MultiRecordEngine."
+                throw new BadUsageException("FileHelperMsg_EmptyTypeArrNotValidMultiRecordEngine", FileHelpersException.SimpleMessageFunc);
             /*if (types.Length == 1)
             {
                 throw new BadUsageException(

@@ -59,8 +59,8 @@ namespace FileHelpers.Dynamic
         public static Type ClassFromString(string classStr, string className, NetLanguage lang, List<Assembly> additionalReferences = null)
         {
             if (classStr.Length < 4) {
-                throw new BadUsageException(
-                    "There is not enough text to be a proper class, load your class and try again");
+                //?ClassTooShort"There is not enough text to be a proper class, load your class and try again"
+                throw new BadUsageException("FileHelperMsg_ClassTooShort", FileHelpersException.SimpleMessageFunc);
             }
 
             var cp = new CompilerParameters();
@@ -190,10 +190,12 @@ namespace FileHelpers.Dynamic
 
             if (cr.Errors.HasErrors) {
                 var error = new StringBuilder();
-                error.Append("Error Compiling Expression: " + StringHelper.NewLine);
+                
                 foreach (CompilerError err in cr.Errors)
-                    error.AppendFormat("Line {0}: {1}\n", err.Line, err.ErrorText);
-                throw new DynamicCompilationException(error.ToString(), classStr, cr.Errors);
+                    error.AppendFormat("[{0}: {1}] \n", err.Line, err.ErrorText);
+
+                //?ErrorCompilingExpression"Error Compiling Expression: \r\n {0} "
+                throw new DynamicCompilationException("FileHelperMsg_ErrorCompilingExpression", (s) => { return String.Format(s, error.ToString()); }, classStr, cr.Errors);
             }
 
             //            Assembly.Load(cr.CompiledAssembly.);
@@ -209,7 +211,8 @@ namespace FileHelpers.Dynamic
                     }
                 }
 
-                throw new BadUsageException("The compiled assembly does not have any type inside.");
+                //?AssemblyIsEmpty"The compiled assembly does not have any type inside."
+                throw new BadUsageException("FileHelperMsg_AssemblyIsEmpty", FileHelpersException.SimpleMessageFunc);
             }
         }
 
@@ -411,9 +414,11 @@ namespace FileHelpers.Dynamic
         {
             className = className.Trim();
             if (ValidIdentifierValidator.ValidIdentifier(className) == false) {
-                throw new FileHelpersException(Messages.Errors.InvalidIdentifier
-                    .Identifier(className)
-                    .Text);
+                //throw new FileHelpersException(Messages.Errors.InvalidIdentifier.Identifier(className).Text);
+                throw new FileHelpersException("FileHelperMsg_InvalidIdentifier", (s) => {
+                    return StringHelper.ReplaceIgnoringCase(s, "$Identifier$", className);
+                });
+                
             }
 
             mClassName = className;
@@ -619,19 +624,21 @@ namespace FileHelpers.Dynamic
         private void ValidateClass()
         {
             if (ClassName.Trim().Length == 0)
-                throw new FileHelpersException(Messages.Errors.EmptyClassName.Text);
-
+                //throw new FileHelpersException(Messages.Errors.EmptyClassName.Text);
+                throw new FileHelpersException("FileHelperMsg_EmptyClassName", FileHelpersException.SimpleMessageFunc);
             for (int i = 0; i < mFields.Count; i++) {
                 if (((FieldBuilder) mFields[i]).FieldName.Trim().Length == 0) {
-                    throw new FileHelpersException(Messages.Errors.EmptyFieldName
-                        .Position((i + 1).ToString())
-                        .Text);
+                    //throw new FileHelpersException(Messages.Errors.EmptyFieldName.Position((i + 1).ToString()).Text);
+                    throw new FileHelpersException("FileHelperMsg_EmptyFieldName", (s) => {
+                        return StringHelper.ReplaceIgnoringCase(s, "$Position$", (i + 1).ToString());
+                    });
                 }
 
                 if (((FieldBuilder) mFields[i]).FieldType.Trim().Length == 0) {
-                    throw new FileHelpersException(Messages.Errors.EmptyFieldType
-                        .Position((i + 1).ToString())
-                        .Text);
+                    //throw new FileHelpersException(Messages.Errors.EmptyFieldType.Position((i + 1).ToString()).Text);
+                    throw new FileHelpersException("FileHelperMsg_EmptyFieldType", (s) => {
+                        return StringHelper.ReplaceIgnoringCase(s, "$Position$", (i + 1).ToString());
+                    });
                 }
             }
         }

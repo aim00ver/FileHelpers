@@ -220,7 +220,8 @@ namespace FileHelpers
         {
             FieldBase res = null;
             MemberInfo mi = fi;
-            var memberName = "The field: '" + fi.Name;
+            //bool isField = true;
+            var memberName = /*"The field: '" + */fi.Name;
             Type fieldType = fi.FieldType;             
             string fieldFriendlyName = AutoPropertyName(fi);
             if (string.IsNullOrEmpty(fieldFriendlyName)==false)
@@ -228,7 +229,8 @@ namespace FileHelpers
                 var prop = fi.DeclaringType.GetProperty(fieldFriendlyName);
                 if (prop != null)
                 {
-                    memberName = "The property: '" + prop.Name;
+                    //isField = false;
+                    memberName = /*"The property: '" + */prop.Name;
                     mi = prop;
                 }
                 else
@@ -253,25 +255,25 @@ namespace FileHelpers
             // Fixed length record and no attributes at all
             if (recordAttribute is FixedLengthRecordAttribute &&
                 attributes.Length == 0) {
-                throw new BadUsageException(memberName +
-                                            "' must be marked the FieldFixedLength attribute because the record class is marked with FixedLengthRecord.");
+                //?NoFieldFixedLengthAttr"The field or property '{0}' must be marked the FieldFixedLength attribute because the record class is marked with FixedLengthRecord."
+                throw new BadUsageException("FileHelperMsg_NoFieldFixedLengthAttr", (s) => { return String.Format(s, memberName); });
             }
 
             if (attributes.Length > 1) {
-                throw new BadUsageException(memberName +
-                                            "' has a FieldFixedLength and a FieldDelimiter attribute.");
+                //?FieldFixedLengthAttrConflict"The field or property '{0}' has a FieldFixedLength and a FieldDelimiter attribute."
+                throw new BadUsageException("FileHelperMsg_FieldFixedLengthAttrConflict", (s) => { return String.Format(s, memberName); });
             }
 
             if (recordAttribute is DelimitedRecordAttribute &&
                 mi.IsDefined(typeof (FieldAlignAttribute), false)) {
-                throw new BadUsageException(memberName +
-                                            "' can't be marked with FieldAlign attribute, it is only valid for fixed length records and are used only for write purpose.");
+                //?FieldAlignAttrIsWrong"The field or property '{0}' can't be marked with FieldAlign attribute, it is only valid for fixed length records and are used only for write purpose."
+                throw new BadUsageException("FileHelperMsg_FieldAlignAttrIsWrong", (s) => { return String.Format(s, memberName); });
             }
 
             if (fieldType.IsArray == false &&
                 mi.IsDefined(typeof (FieldArrayLengthAttribute), false)) {
-                throw new BadUsageException(memberName +
-                                            "' can't be marked with FieldArrayLength attribute is only valid for array fields.");
+                //?FieldArrayLengthAttrIsWrong"The field or property '{0}' can't be marked with FieldArrayLength attribute is only valid for array fields."
+                throw new BadUsageException("FileHelperMsg_FieldArrayLengthAttrIsWrong", (s) => { return String.Format(s, memberName); });
             }
 
             // PROCESS IN NORMAL CONDITIONS
@@ -281,8 +283,8 @@ namespace FileHelpers
                 if (fieldAttb is FieldFixedLengthAttribute) {
                     // Fixed Field
                     if (recordAttribute is DelimitedRecordAttribute) {
-                        throw new BadUsageException(memberName +
-                                                    "' can't be marked with FieldFixedLength attribute, it is only for the FixedLengthRecords not for delimited ones.");
+                        //?FieldFixedLengthAttrIsWrong"The field or property '{0}' can't be marked with FieldFixedLength attribute, it is only for the FixedLengthRecords not for delimited ones."
+                        throw new BadUsageException("FileHelperMsg_FieldFixedLengthAttrIsWrong", (s) => { return String.Format(s, memberName); });
                     }
 
                     var attbFixedLength = (FieldFixedLengthAttribute) fieldAttb;
@@ -294,16 +296,15 @@ namespace FileHelpers
                 else if (fieldAttb is FieldDelimiterAttribute) {
                     // Delimited Field
                     if (recordAttribute is FixedLengthRecordAttribute) {
-                        throw new BadUsageException(memberName +
-                                                    "' can't be marked with FieldDelimiter attribute, it is only for DelimitedRecords not for fixed ones.");
+                        //?FieldDelimiterAttrIsWrong"The field or property '{0}' can't be marked with FieldDelimiter attribute, it is only for DelimitedRecords not for fixed ones."
+                        throw new BadUsageException("FileHelperMsg_FieldDelimiterAttrIsWrong", (s) => { return String.Format(s, memberName); });
                     }
 
                     res = new DelimitedField(fi, ((FieldDelimiterAttribute) fieldAttb).Delimiter);
                 }
                 else {
-                    throw new BadUsageException(
-                        "Custom field attributes are not currently supported. Unknown attribute: " +
-                        fieldAttb.GetType().Name + " on field: " + fi.Name);
+                    //?CustomAttrNotSupported"Custom field attributes are not currently supported. Unknown attribute: {0} on field: {1}"
+                    throw new BadUsageException("FileHelperMsg_CustomAttrNotSupported", (s) => { return String.Format(s, fieldAttb.GetType().Name, fi.Name); });
                 }
             }
             else // attributes.Length == 0
@@ -331,9 +332,8 @@ namespace FileHelpers
                 Attributes.WorkWithFirst<FieldQuotedAttribute>(mi,
                     (x) => {
                         if (res is FixedLengthField) {
-                            throw new BadUsageException(
-                                memberName +
-                                "' can't be marked with FieldQuoted attribute, it is only for the delimited records.");
+                            //?FieldQuotedAttrIsWrong"The field or property '{0}' can't be marked with FieldQuoted attribute, it is only for the delimited records."
+                            throw new BadUsageException("FileHelperMsg_FieldQuotedAttrIsWrong", (s) => { return String.Format(s, memberName); });
                         }
 
                         ((DelimitedField) res).QuoteChar =
@@ -379,8 +379,8 @@ namespace FileHelpers
                             if (res.ArrayMaxLength < res.ArrayMinLength ||
                                 res.ArrayMinLength < 0 ||
                                 res.ArrayMaxLength <= 0) {
-                                throw new BadUsageException(memberName +
-                                                            " has invalid length values in the [FieldArrayLength] attribute.");
+                                //?FieldArrayLengthAttrIsInvalid"The field or property '{0}' has invalid length values in the [FieldArrayLength] attribute."
+                                throw new BadUsageException("FileHelperMsg_FieldArrayLengthAttrIsInvalid", (s) => { return String.Format(s, memberName); });
                             }
                         });
                 }
@@ -488,10 +488,8 @@ namespace FileHelpers
 
                 if (NullValue != null) {
                     if (!FieldTypeInternal.IsAssignableFrom(NullValue.GetType())) {
-                        throw new BadUsageException("The NullValue is of type: " + NullValue.GetType().Name +
-                                                    " that is not asignable to the field " + FieldInfo.Name +
-                                                    " of type: " +
-                                                    FieldTypeInternal.Name);
+                        //?NullValueWrongType"The NullValue is of type: {0} that is not asignable to the field {1} of type: {2}"
+                        throw new BadUsageException("FileHelperMsg_NullValueWrongType", (s) => { return String.Format(s, NullValue.GetType().Name, FieldInfo.Name, FieldTypeInternal.Name); });
                     }
                 }
             }
@@ -557,18 +555,15 @@ namespace FileHelpers
             if (InNewLine) {
                 // Any trailing characters, terminate
                 if (line.EmptyFromPos() == false) {
-                    throw new BadUsageException(line,
-                        "Text '" + line.CurrentString +
-                        "' found before the new line of the field: " + FieldInfo.Name +
-                        " (this is not allowed when you use [FieldInNewLine])");
+                    //?TextBeforeNewLine"Text '{0}' found before the new line of the field: {1} (this is not allowed when you use [FieldInNewLine])"
+                    throw new BadUsageException(line, "FileHelperMsg_TextBeforeNewLine", (s) => { return String.Format(s, line.CurrentString, FieldInfo.Name); });
                 }
 
                 line.ReLoad(line.mReader.ReadNextLine());
 
                 if (line.mLineStr == null) {
-                    throw new BadUsageException(line,
-                        "End of stream found parsing the field " + FieldInfo.Name +
-                        ". Please check the class record.");
+                    //?EndOfStreamInsideField"End of stream found parsing the field {0}. Please check the class record."
+                    throw new BadUsageException(line, "FileHelperMsg_EndOfStreamInsideField", (s) => { return String.Format(s, FieldInfo.Name); });
                 }
             }
 
@@ -620,23 +615,12 @@ namespace FileHelpers
                 }
 
                 if (res.Count < ArrayMinLength) {
-                    throw new InvalidOperationException(
-                        string.Format(
-                            "Line: {0} Column: {1} Field: {2}. The array has only {3} values, less than the minimum length of {4}",
-                            line.mReader.LineNumber.ToString(),
-                            line.mCurrentPos.ToString(),
-                            FieldInfo.Name,
-                            res.Count,
-                            ArrayMinLength));
+                    //?ArrayLengthLessThanMin"Line: {0} Column: {1} Field: {2}. The array has only {3} values, less than the minimum length of {4}"
+                    throw new FileHelpersException("FileHelperMsg_ArrayLengthLessThanMin", (s) => { return string.Format(s, line.mReader.LineNumber.ToString(), line.mCurrentPos.ToString(), FieldInfo.Name, res.Count, ArrayMinLength); }); 
                 }
                 else if (IsLast && line.IsEOL() == false) {
-                    throw new InvalidOperationException(
-                        string.Format(
-                            "Line: {0} Column: {1} Field: {2}. The array has more values than the maximum length of {3}",
-                            line.mReader.LineNumber,
-                            line.mCurrentPos,
-                            FieldInfo.Name,
-                            ArrayMaxLength));
+                    //?ArrayLengthGreaterThanMin"Line: {0} Column: {1} Field: {2}. The array has more values than the maximum length of {3}"
+                    throw new FileHelpersException("FileHelperMsg_ArrayLengthGreaterThanMin", (s) => { return string.Format(s, line.mReader.LineNumber, line.mCurrentPos, FieldInfo.Name, ArrayMaxLength); });
                 }
 
                 // TODO:   is there a reason we go through all the array processing then discard it
@@ -673,7 +657,8 @@ namespace FileHelpers
                 {
                     if (IsNotEmpty && String.IsNullOrEmpty(extractedString))
                     {
-                        throw new InvalidOperationException("The value is empty and must be populated.");
+                        //?ValueNonPopulated"The value is empty and must be populated."
+                        throw new FileHelpersException("FileHelperMsg_ValueNonPopulated", FileHelpersException.SimpleMessageFunc);
                     }
                     else if (this.Converter == null)
                     {
@@ -752,7 +737,8 @@ namespace FileHelpers
                             FieldInfo.Name,
                             line.mReader.LineNumber,
                             fieldString.ExtractedFrom + 1,
-                            ex.Message,
+                            FileHelpersException.NonLocalizedCode,
+                            (s) => { return ex.Message; },
                             ex);
                     }
                     else
@@ -762,8 +748,9 @@ namespace FileHelpers
                             FieldInfo.Name,
                             line.mReader.LineNumber,
                             fieldString.ExtractedFrom + 1,
-                            "Your custom converter: " + this.Converter.GetType().Name + " throws an " + ex.GetType().Name +
-                            " with the message: " + ex.Message,
+                            "FileHelperMsg_ConvertExceptionCustomConverterException",
+                            //!"Your custom converter: {0} throws an {1} with the message: {2}"
+                            (s) => { return String.Format(s, this.Converter.GetType().Name, ex.GetType().Name, ex.Message); },
                             ex);
                     }
                 }
@@ -811,7 +798,8 @@ namespace FileHelpers
                     return extractedString.TrimEnd();
 
                 default:
-                    throw new Exception("Trim mode invalid in FieldBase.TrimString -> " + TrimMode.ToString());
+                    //?TrimModeIsInvalid"Trim mode invalid in FieldBase.TrimString"
+                    throw new FileHelpersException("FileHelperMsg_TrimModeIsInvalid", (s) => { return s + TrimMode.ToString(); });
             }
         }
 
@@ -828,12 +816,8 @@ namespace FileHelpers
                     if (IsNullableType)
                         return null;
 
-                    string msg = "Not value found for the value type field: '" + FieldInfo.Name + "' Class: '" +
-                                 FieldInfo.DeclaringType.Name + "'. " + Environment.NewLine
-                                 +
-                                 "You must use the [FieldNullValue] attribute because this is a value type and can't be null or use a Nullable Type instead of the current type.";
-
-                    throw new NullValueNotFoundException(line, msg);
+                    //?FieldNullValueIsMissing"No value found for the value type field: '{0}' Class: '{1}'. {2}You must use the [FieldNullValue] attribute because this is a value type and can't be null or use a Nullable Type instead of the current type.";
+                    throw new NullValueNotFoundException(line, "FileHelperMsg_FieldNullValueIsMissing", (s) => { return String.Format(s, FieldInfo.Name, FieldInfo.DeclaringType.Name, Environment.NewLine); });
                 }
                 else
                     return null;
@@ -853,13 +837,8 @@ namespace FileHelpers
                     if (IsNullableType)
                         return null;
 
-
-                    string msg = "The field: '" + FieldInfo.Name + "' Class: '" +
-                                 FieldInfo.DeclaringType.Name +
-                                 "' is from a value type: " + FieldInfo.FieldType.Name +
-                                 " and is discarded (null) you must provide a [FieldNullValue] attribute.";
-
-                    throw new BadUsageException(msg);
+                    //?ValueIsDiscarded"The field: '{0}' Class: '{1}' is from a value type: {2} and is discarded (null) you must provide a [FieldNullValue] attribute.";
+                    throw new BadUsageException("FileHelperMsg_ValueIsDiscarded", (s) => { return String.Format(s, FieldInfo.Name, FieldInfo.DeclaringType.Name, FieldInfo.FieldType.Name); });
                 }
                 else
                     return null;
@@ -885,9 +864,8 @@ namespace FileHelpers
                 if (NullValue == null) {
                     if (FieldTypeInternal.IsValueType &&
                         Nullable.GetUnderlyingType(FieldTypeInternal) == null) {
-                        throw new BadUsageException(
-                            "Null Value found. You must specify a FieldNullValueAttribute in the " + FieldInfo.Name +
-                            " field of type " + FieldTypeInternal.Name + ", because this is a ValueType.");
+                        //?NullValueFoundNoFieldNullValueAttribute"Null Value found. You must specify a FieldNullValueAttribute in the {0} field of type {1}, because this is a ValueType."
+                        throw new BadUsageException("FileHelperMsg_NullValueFoundNoFieldNullValueAttribute", (s) => { return String.Format(s, FieldInfo.Name, FieldTypeInternal.Name); });
                     }
                     else
                         val = null;
@@ -937,10 +915,8 @@ namespace FileHelpers
             if (IsArray) {
                 if (fieldValue == null) {
                     if (0 < this.ArrayMinLength) {
-                        throw new InvalidOperationException(
-                            string.Format("Field: {0}. The array is null, but the minimum length is {1}",
-                                FieldInfo.Name,
-                                ArrayMinLength));
+                        //?ArrayIsNullMinLen"Field: {0}. The array is null, but the minimum length is {1}"
+                        throw new FileHelpersException("FileHelperMsg_ArrayIsNullMinLen", (s) => { return string.Format(s, FieldInfo.Name, ArrayMinLength); });
                     }
 
                     return;
@@ -949,19 +925,13 @@ namespace FileHelpers
                 var array = (IList) fieldValue;
 
                 if (array.Count < this.ArrayMinLength) {
-                    throw new InvalidOperationException(
-                        string.Format("Field: {0}. The array has {1} values, but the minimum length is {2}",
-                            FieldInfo.Name,
-                            array.Count,
-                            ArrayMinLength));
+                    //?ArrayLenWrongMin"Field: {0}. The array has {1} values, but the minimum length is {2}"
+                    throw new FileHelpersException("FileHelperMsg_ArrayLenWrongMin", (s) => { return string.Format(s, FieldInfo.Name, array.Count, ArrayMinLength); });
                 }
 
                 if (array.Count > this.ArrayMaxLength) {
-                    throw new InvalidOperationException(
-                        string.Format("Field: {0}. The array has {1} values, but the maximum length is {2}",
-                            FieldInfo.Name,
-                            array.Count,
-                            ArrayMaxLength));
+                    //?ArrayLenWrongMax"Field: {0}. The array has {1} values, but the maximum length is {2}"
+                    throw new FileHelpersException("FileHelperMsg_ArrayLenWrongMax", (s) => { return string.Format(s, FieldInfo.Name, array.Count, ArrayMaxLength); });
                 }
 
                 for (int i = 0; i < array.Count; i++) {

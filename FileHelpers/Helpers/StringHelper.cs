@@ -32,12 +32,13 @@ namespace FileHelpers
             //				throw new BadUsageException("The reader can´t be null");
 
             if (line.IsEOL()) {
-                throw new BadUsageException(
-                    "An empty String found. This can not be parsed like a QuotedString try to use SafeExtractQuotedString");
+                //?EmptyStringFound"An empty String found. This can not be parsed like a QuotedString try to use SafeExtractQuotedString"
+                throw new BadUsageException("FileHelperMsg_EmptyStringFound", FileHelpersException.SimpleMessageFunc);
             }
 
             if (line.mLineStr[line.mCurrentPos] != quoteChar)
-                throw new BadUsageException("The source string does not begin with the quote char: " + quoteChar);
+                //?StringNotStartsWithQuoteChar"The source string does not begin with the quote char: {0}"
+                throw new BadUsageException("FileHelperMsg_StringNotStartsWithQuoteChar", (s) => { return String.Format(s, quoteChar); });
 
             var res = new StringBuilder(32);
 
@@ -76,8 +77,8 @@ namespace FileHelpers
                 }
                 else {
                     if (allowMultiline == false) {
-                        throw new BadUsageException("The current field has an unclosed quoted string. Complete line: " +
-                                                    res.ToString());
+                        //?UnclosedQuoteString"The current field has an unclosed quoted string. Complete line: {0}"
+                        throw new BadUsageException("FileHelperMsg_UnclosedQuoteString", (s) => { return String.Format(s, res.ToString()); });
                     }
 
                     line.ReadNextLine();
@@ -86,9 +87,8 @@ namespace FileHelpers
                     i = 0;
                 }
             }
-
-            throw new BadUsageException("The current field has an unclosed quoted string. Complete Filed String: " +
-                                        res.ToString());
+            //?UnclosedQuoteStringComplete"The current field has an unclosed quoted string. Complete Filed String: {0}"
+            throw new BadUsageException("FileHelperMsg_UnclosedQuoteStringComplete", (s) => { return String.Format(s, res.ToString()); });
         }
 
         #endregion

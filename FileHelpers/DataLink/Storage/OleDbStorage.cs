@@ -35,7 +35,8 @@ namespace FileHelpers.DataLink
         {
             if (ConnectionString == null ||
                 ConnectionString == string.Empty)
-                throw new BadUsageException("The OleDb Connection string can't be null or empty.");
+                //?OleDbConnectionIsEmpty"The OleDb Connection string can't be null or empty."
+                throw new BadUsageException("FileHelperMsg_OleDbConnectionIsEmpty", FileHelpersException.SimpleMessageFunc);
             return new OleDbConnection(ConnectionString);
         }
 

@@ -225,10 +225,12 @@ namespace FileHelpers.MasterDetail
         public MasterDetails<TMaster, TDetail>[] ReadStream(TextReader reader)
         {
             if (reader == null)
-                throw new ArgumentNullException("reader", "The reader of the Stream can't be null");
+                //?StreamReaderIsNull"The reader of the Stream can't be null"
+                throw new FileHelpersException("FileHelperMsg_StreamReaderIsNull", FileHelpersException.SimpleMessageFunc);
 
             if (RecordSelector == null)
-                throw new BadUsageException("The RecordSelector can't be null on read operations.");
+                //?RecordSelectorIsNullOnRead"The RecordSelector can't be null on read operations."
+                throw new BadUsageException("FileHelperMsg_RecordSelectorIsNullOnRead", FileHelpersException.SimpleMessageFunc);
 
             var recordReader = new NewLineDelimitedRecordReader(reader);
 
@@ -286,7 +288,8 @@ namespace FileHelpers.MasterDetail
                             action = RecordSelector(currentLine);
                         }
                         catch (Exception ex) {
-                            throw new Exception("Supplied Record selector failed to process record", ex);
+                            //?SuppliedRecordSelectorFailed"Supplied Record selector failed to process record"
+                            throw new FileHelpersException("FileHelperMsg_SuppliedRecordSelectorFailed", FileHelpersException.SimpleMessageFunc, ex);
                         }
 
                         switch (action) {
@@ -402,11 +405,13 @@ namespace FileHelpers.MasterDetail
         public void WriteStream(TextWriter writer, IEnumerable<MasterDetails<TMaster, TDetail>> records, int maxRecords)
         {
             if (writer == null)
-                throw new ArgumentNullException("writer", "The writer of the Stream can be null");
+                //?StreamWriterIsNull"The writer of the Stream can be null"
+                throw new FileHelpersException("FileHelperMsg_StreamWriterIsNull", FileHelpersException.SimpleMessageFunc);
 
             if (records == null)
-                throw new ArgumentNullException("records", "The records can be null. Try with an empty array.");
-
+                //?RecordsCannotBeNull"The records cannot be null. Try with an empty array."
+                throw new FileHelpersException("FileHelperMsg_RecordsCannotBeNull", FileHelpersException.SimpleMessageFunc);
+            
             ResetFields();
 
             if (!string.IsNullOrEmpty(mHeaderText)) {
@@ -439,7 +444,8 @@ namespace FileHelpers.MasterDetail
 
                 try {
                     if (rec == null)
-                        throw new BadUsageException("The record at index " + recIndex.ToString() + " is null.");
+                        //?RecordIsNullAtIndex"The record at index {0} is null."
+                        throw new BadUsageException("FileHelperMsg_RecordIsNullAtIndex", (s) => { return String.Format(s, recIndex.ToString()); });
 
                     if (MustNotifyProgress) // Avoid object creation
                         OnProgress(new ProgressEventArgs(recIndex + 1, max));

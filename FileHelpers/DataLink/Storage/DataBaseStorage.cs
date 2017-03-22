@@ -56,8 +56,8 @@ namespace FileHelpers.DataLink
         private object FillRecord(object[] fieldValues)
         {
             if (FillRecordCallback == null) {
-                throw new BadUsageException(
-                    "You can't extract records with a null FillRecordCallback. Check the docs for help.");
+                //?FillRecordCallbackIsNull"You can't extract records with a null FillRecordCallback. Check the docs for help."
+                throw new BadUsageException("FileHelperMsg_FillRecordCallbackIsNull", FileHelpersException.SimpleMessageFunc);
             }
 
             object res = mRecordInfo.Operations.CreateRecordHandler();
@@ -77,8 +77,8 @@ namespace FileHelpers.DataLink
         {
             if (mSelectSql == null ||
                 mSelectSql == string.Empty) {
-                throw new BadUsageException(
-                    "The SelectSql property is empty, please set it before trying to get the records.");
+                //?SelectSqlPropIsEmpty"The SelectSql property is empty, please set it before trying to get the records."
+                throw new BadUsageException("FileHelperMsg_SelectSqlPropIsEmpty", FileHelpersException.SimpleMessageFunc);
             }
 
             return mSelectSql;
@@ -107,8 +107,8 @@ namespace FileHelpers.DataLink
         private string GetInsertSql(object record)
         {
             if (mInsertSqlCallback == null) {
-                throw new BadUsageException(
-                    "You can't insert records with a null GetInsertSqlCallback. Check the docs for help.");
+                //?GetInsertSqlCallbackIsNull"You can't insert records with a null GetInsertSqlCallback. Check the docs for help."
+                throw new BadUsageException("FileHelperMsg_GetInsertSqlCallbackIsNull", FileHelpersException.SimpleMessageFunc);
             }
 
             return mInsertSqlCallback(record);
@@ -352,7 +352,8 @@ namespace FileHelpers.DataLink
             set
             {
                 if (value < 1)
-                    throw new ArgumentException("ExecuteInBatchSize", "ExecuteInBatchSize must be >= 1");
+                    //?ExecuteInBatchSizeIsZero"ExecuteInBatchSize must be >= 1"
+                    throw new BadUsageException("FileHelperMsg_ExecuteInBatchSizeIsZero", FileHelpersException.SimpleMessageFunc);
 
                 mExecuteInBatchSize = value;
             }

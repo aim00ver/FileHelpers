@@ -44,7 +44,8 @@ namespace FileHelpers.DataLink
         {
             if (mAccessFile == null ||
                 mAccessFile == string.Empty)
-                throw new BadUsageException("The AccessFileName can't be null or empty.");
+                //?AccessFileNameIsNull"The AccessFileName can't be null or empty."
+                throw new BadUsageException("FileHelperMsg_AccessFileNameIsNull", FileHelpersException.SimpleMessageFunc);
 
             return new OleDbConnection(ConnectionString);
         }

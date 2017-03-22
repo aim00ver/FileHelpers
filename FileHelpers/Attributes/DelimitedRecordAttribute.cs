@@ -20,7 +20,8 @@ namespace FileHelpers
             if (Separator != String.Empty)
                 this.Separator = delimiter;
             else
-                throw new ArgumentException("Given delimiter cannot be <> \"\"", "delimiter");
+                //?ForbiddenDelimiter"Given delimiter cannot be <> \"\""
+                throw new FileHelpersException("FileHelperMsg_ForbiddenDelimiter", FileHelpersException.SimpleMessageFunc);
         }
     }
 }

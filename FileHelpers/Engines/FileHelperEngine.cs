@@ -178,7 +178,8 @@ namespace FileHelpers
         {
 
             if (reader == null)
-                throw new ArgumentNullException("reader", "The reader of the Stream can´t be null");
+                //?StreamReaderIsNull"The reader of the Stream can't be null"
+                throw new FileHelpersException("FileHelperMsg_StreamReaderIsNull", FileHelpersException.SimpleMessageFunc);
             var recordReader = new NewLineDelimitedRecordReader(reader);
 
             ResetFields();
@@ -432,10 +433,12 @@ namespace FileHelpers
         public void WriteStream(TextWriter writer, IEnumerable<T> records, int maxRecords)
         {
             if (writer == null)
-                throw new ArgumentNullException("writer", "The writer of the Stream can be null");
+                //?StreamWriterIsNull"The writer of the Stream can be null"
+                throw new FileHelpersException("FileHelperMsg_StreamWriterIsNull", FileHelpersException.SimpleMessageFunc);
 
             if (records == null)
-                throw new ArgumentNullException("records", "The records can be null. Try with an empty array.");
+                //?UseEmptyArray"The records can be null. Try with an empty array."
+                throw new FileHelpersException("FileHelperMsg_UseEmptyArray", FileHelpersException.SimpleMessageFunc);
 
 
             ResetFields();
@@ -473,14 +476,14 @@ namespace FileHelpers
                 mLineNumber++;
                 try {
                     if (rec == null)
-                        throw new BadUsageException(string.Format("The record at index {0} is null.", recIndex));
+                        //?RecordIsNullAtIndex"The record at index {0} is null."
+                        throw new BadUsageException("FileHelperMsg_RecordIsNullAtIndex", (s) => { return String.Format(s, recIndex); });
 
                     if (first) {
                         first = false;
                         if (RecordInfo.RecordType.IsInstanceOfType(rec) == false) {
-                            throw new BadUsageException("This engine works with record of type " +
-                                                        RecordInfo.RecordType.Name + " and you use records of type " +
-                                                        rec.GetType().Name);
+                            //?RecordTypeMismatch"This engine works with record of type {0} and you use records of type {1}" 
+                            throw new BadUsageException("FileHelperMsg_RecordTypeMismatch", (s) => { return String.Format(s, RecordInfo.RecordType.Name, rec.GetType().Name); });
                         }
                     }
 

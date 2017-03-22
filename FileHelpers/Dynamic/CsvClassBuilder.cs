@@ -49,8 +49,8 @@ namespace FileHelpers.Dynamic
             else if (options.NumberOfFields > 0)
                 AddFields(options.NumberOfFields, options.FieldsPrefix);
             else {
-                throw new BadUsageException(
-                    "You must provide a SampleFileName or a NumberOfFields to parse a genric CSV file.");
+                //?CSVNotEnoughInfo"You must provide a SampleFileName or a NumberOfFields to parse a genric CSV file."
+                throw new BadUsageException("FileHelperMsg_CSVNotEnoughInfo", FileHelpersException.SimpleMessageFunc);
             }
         }
 

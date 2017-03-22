@@ -37,7 +37,8 @@ namespace FileHelpers
                 ci.NumberFormat.NumberGroupSeparator = ".";
             }
             else
-                throw new BadUsageException("You can only use '.' or ',' as decimal or group separators");
+                //?WrongDecimalSeparator"You can only use '.' or ',' as decimal or group separators"
+                throw new BadUsageException("FileHelperMsg_WrongDecimalSeparator", FileHelpersException.SimpleMessageFunc);
 
             return ci;
         }
@@ -58,15 +59,15 @@ namespace FileHelpers
             {
                 
                 if (fieldType.GetArrayRank() != 1) {
-                    throw new BadUsageException("The array field: '" + fieldName +
-                                                "' has more than one dimension and is not supported by the library.");
+                    //?TooManyArrayDimensions"The array field: '{0}' has more than one dimension and is not supported by the library."
+                    throw new BadUsageException("FileHelperMsg_TooManyArrayDimensions", (s) => { return String.Format(s, fieldName); });
                 }
 
                 fieldType = fieldType.GetElementType();
 
                 if (fieldType.IsArray) {
-                    throw new BadUsageException("The array field: '" + fieldName +
-                                                "' is a jagged array and is not supported by the library.");
+                    //?JaggedArrayNotSupported"The array field: '{0}' is a jagged array and is not supported by the library."
+                    throw new BadUsageException("FileHelperMsg_JaggedArrayNotSupported", (s) => { return String.Format(s, fieldName); });
                 }
             }
 
@@ -125,9 +126,8 @@ namespace FileHelpers
                 return new GuidConverter();
             if (fieldType.IsEnum)
                 return new EnumConverter(fieldType);
-
-            throw new BadUsageException("The field: '" + fieldName + "' has the type: " + fieldType.Name +
-                                        " that is not a system type, so this field need a CustomConverter ( Please Check the docs for more Info).");
+            //?CustomConverterNeeded"The field: '{0}' has the type: {1} that is not a system type, so this field need a CustomConverter ( Please Check the docs for more Info)."
+            throw new BadUsageException("FileHelperMsg_CustomConverterNeeded", (s) => { return String.Format(s, fieldName, fieldType.Name); });
         }
 
         #endregion
@@ -681,7 +681,8 @@ namespace FileHelpers
             public DateTimeConverter(string format, string culture)
             {
                 if (string.IsNullOrEmpty(format))
-                    throw new BadUsageException("The format of the DateTime Converter cannot be null or empty.");
+                    //?NullDateTimeConverter"The format of the DateTime Converter cannot be null or empty."
+                    throw new BadUsageException("FileHelperMsg_NullDateTimeConverter", FileHelpersException.SimpleMessageFunc);
 
                 try
                 {
@@ -689,7 +690,8 @@ namespace FileHelpers
                 }
                 catch
                 {
-                    throw new BadUsageException("The format: '" + format + " is invalid for the DateTime Converter.");
+                    //?InvalidDateTimeConverterFormat"The format: '{0}' is invalid for the DateTime Converter."
+                    throw new BadUsageException("FileHelperMsg_InvalidDateTimeConverterFormat", (s) => { return String.Format(s, format); });
                 }
 
                 mFormat = format;
@@ -707,18 +709,22 @@ namespace FileHelpers
                     from = string.Empty;
 
                 DateTime val;
-                if (!DateTime.TryParseExact(from.Trim(), mFormat, mCulture, DateTimeStyles.None, out val)) {
-                    string extra;
-
+                if (!DateTime.TryParseExact(from.Trim(), mFormat, mCulture, DateTimeStyles.None, out val))
+                {
+                    Func<string, string> extra = (s) => String.Format(s, mFormat);
+                    string extraCode;
                     if (from.Length > mFormat.Length)
-                        extra = " There are more chars in the Input String than in the Format string: '" + mFormat + "'";
+                        //!" There are more chars in the Input String than in the Format string: '{0}'";
+                        extraCode = "FileHelperMsg_ConvertExceptionMoreChars";
                     else if (from.Length < mFormat.Length)
-                        extra = " There are less chars in the Input String than in the Format string: '" + mFormat + "'";
+                        //!" There are less chars in the Input String than in the Format string: '{0}'";
+                        extraCode = "FileHelperMsg_ConvertExceptionLessChars";
                     else
-                        extra = " Using the format: '" + mFormat + "'";
+                        //!" Using the format: '{0}'";
+                        extraCode = "FileHelperMsg_ConvertExceptionUsingFormat";
 
 
-                    throw new ConvertException(from, typeof (DateTime), extra);
+                    throw new ConvertException(from, typeof (DateTime), extraCode, extra);
                 }
                 return val;
             }
@@ -770,14 +776,15 @@ namespace FileHelpers
                 for (int i = 0; i < formats.Length; i++) {
                     if (formats[i] == null ||
                         formats[i] == String.Empty)
-                        throw new BadUsageException("The format of the DateTime Converter can be null or empty.");
+                        //?NullDateTimeConverter"The format of the DateTime Converter cannot be null or empty."
+                        throw new BadUsageException("FileHelperMsg_NullDateTimeConverter", FileHelpersException.SimpleMessageFunc);
 
                     try {
                         DateTime.Now.ToString(formats[i]);
                     }
                     catch {
-                        throw new BadUsageException("The format: '" + formats[i] +
-                                                    " is invalid for the DateTime Converter.");
+                        //?InvalidDateTimeConverterFormat"The format: '{0}' is invalid for the DateTime Converter."
+                        throw new BadUsageException("FileHelperMsg_InvalidDateTimeConverterFormat", (s) => { return String.Format(s, formats[i]); });
                     }
                 }
 
@@ -796,8 +803,8 @@ namespace FileHelpers
 
                 DateTime val;
                 if (!DateTime.TryParseExact(from.Trim(), mFormats, null, DateTimeStyles.None, out val)) {
-                    string extra = " does not match any of the given formats: " + CreateFormats();
-                    throw new ConvertException(from, typeof (DateTime), extra);
+                    //?NoFormatMatched" does not match any of the given formats: {0}" 
+                    throw new ConvertException(from, typeof (DateTime), "FileHelperMsg_NoFormatMatched", (s) => { return String.Format(s, CreateFormats()); });
                 }
                 return val;
             }
@@ -902,10 +909,8 @@ namespace FileHelpers
                             break;
 
                         default:
-                            throw new ConvertException(from,
-                                typeof (bool),
-                                "The string: " + from
-                                + " can't be recognized as boolean using default true/false values.");
+                            //?DefaultBoolNotRecognized"The string: {0} can't be recognized as boolean using default true/false values."
+                            throw new ConvertException(from, typeof (bool), "FileHelperMsg_DefaultBoolNotRecognized", (s) => { return String.Format(s, from); });
                     }
                 }
                 else {
@@ -922,11 +927,8 @@ namespace FileHelpers
                         else if (testTo == mFalseStringLower)
                             val = false;
                         else {
-                            throw new ConvertException(from,
-                                typeof (bool),
-                                "The string: " + from
-                                + " can't be recognized as boolean using the true/false values: " + mTrueString + "/" +
-                                mFalseString);
+                            //?BoolNotRecognized"The string: {0} can't be recognized as boolean using the true/false values: {1}/{2}"
+                            throw new ConvertException(from, typeof (bool), "FileHelperMsg_BoolNotRecognized", (s) => { return String.Format(s, from, mTrueString, mFalseString); });
                         }
                     }
                 }
@@ -1024,8 +1026,8 @@ namespace FileHelpers
                         break;
 
                     default:
-                        throw new BadUsageException(
-                            "The format of the Char Converter must be \"\", \"x\" or \"lower\" for lower case, \"X\" or \"upper\" for upper case");
+                        //?InvalidCharCOnverterFormat"The format of the Char Converter must be \"\", \"x\" or \"lower\" for lower case, \"X\" or \"upper\" for upper case"
+                        throw new BadUsageException("FileHelperMsg_InvalidCharCOnverterFormat", FileHelpersException.SimpleMessageFunc);
                 }
             }
 
@@ -1051,13 +1053,13 @@ namespace FileHelpers
                             return char.ToUpper(from[0]);
 
                         default:
-                            throw new ConvertException(from,
-                                typeof (Char),
-                                "Unknown char convert flag " + mFormat.ToString());
+                            //?UnknownCharConverterFlag"Unknown char convert flag {0}"
+                            throw new ConvertException(from, typeof (Char), "FileHelperMsg_UnknownCharConverterFlag", (s) => { return String.Format(s, mFormat.ToString()); });
                     }
                 }
                 catch {
-                    throw new ConvertException(from, typeof (Char), "Upper or lower case of input string failed");
+                    //?UpperLowerCaseFailed"Upper or lower case of input string failed"
+                    throw new ConvertException(from, typeof (Char), "FileHelperMsg_UpperLowerCaseFailed", FileHelpersException.SimpleMessageFunc);
                 }
             }
 
@@ -1079,7 +1081,8 @@ namespace FileHelpers
                         return char.ToUpper(Convert.ToChar(from)).ToString();
 
                     default:
-                        throw new ConvertException("", typeof (Char), "Unknown char convert flag " + mFormat.ToString());
+                        //?UnknownCharConverterFlag"Unknown char convert flag {0}"
+                        throw new ConvertException("", typeof (Char), "FileHelperMsg_UnknownCharConverterFlag", (s) => { return String.Format(s, mFormat.ToString()); });
                 }
             }
         }
@@ -1114,7 +1117,8 @@ namespace FileHelpers
                 format = format.Trim().ToUpper();
 
                 if (!(format == "N" || format == "D" || format == "B" || format == "P"))
-                    throw new BadUsageException("The format of the Guid Converter must be N, D, B or P.");
+                    //?InvalidGUIDFormat"The format of the Guid Converter must be N, D, B or P."
+                    throw new BadUsageException("FileHelperMsg_InvalidGUIDFormat", FileHelpersException.SimpleMessageFunc);
 
                 mFormat = format;
             }

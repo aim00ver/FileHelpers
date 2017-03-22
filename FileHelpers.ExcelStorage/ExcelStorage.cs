@@ -98,7 +98,8 @@ namespace FileHelpers.DataLink
 			catch (System.Runtime.InteropServices.COMException ex)
 			{
 				if (ex.Message.IndexOf("00024500-0000-0000-C000-000000000046") >= 0)
-					throw new ExcelBadUsageException("Excel 2000 or newer is not installed in this system.");
+                    //?WrongExcelInstalled"Excel 2000 or newer is not installed in this system."
+                    throw new ExcelBadUsageException("FileHelperMsg_WrongExcelInstalled", FileHelpersException.SimpleMessageFunc);
 				else
 					throw;
 			}
@@ -161,7 +162,8 @@ namespace FileHelpers.DataLink
 		{
 			FileInfo info = new FileInfo(filename);
 			if (info.Exists == false)
-				throw new FileNotFoundException("Excel File '" + filename + "' not found.", filename);
+                //?ExcelFileNotFound"Excel File '{0}' not found."
+                throw new FileHelpersException("FileHelperMsg_ExcelFileNotFound", (s) => { return String.Format(s, filename); });
 
             this.mBook = this.mApp.Workbooks.Open(info.FullName, (int) UpdateLinks, 
                 mv, mv, mv, mv, mv, mv, mv, mv, mv, mv, mv);
@@ -176,7 +178,8 @@ namespace FileHelpers.DataLink
 				}
 				catch
 				{
-					throw new ExcelBadUsageException("The sheet '" + SheetName + "' was not found in the workbook.");
+                    //?XlSheetWasNotFound"The sheet '{0}' was not found in the workbook."
+                    throw new ExcelBadUsageException("FileHelperMsg_XlSheetWasNotFound", (s) => { return String.Format(s, SheetName); });
 				}
 			}
 
@@ -254,8 +257,9 @@ namespace FileHelpers.DataLink
 		} 
 		string ColLetter(int col /* 1 Origin */) 
 		{ 
-			if (col < 1 || col > 256) 
-				throw new ExcelBadUsageException("Column out of range; must be between 1 and 256"); // Excel limits 
+			if (col < 1 || col > 256)
+                //?ColumnOutOfRange"Column out of range; must be between 1 and 256"
+                throw new ExcelBadUsageException("FileHelperMsg_ColumnOutOfRange", FileHelpersException.SimpleMessageFunc); // Excel limits 
 			col--; // make 0 origin 
 			// good up to col ZZ 
 			int col2 = (col / 26)-1; 
@@ -340,7 +344,8 @@ namespace FileHelpers.DataLink
 		            if (TemplateFile != string.Empty)
 		            {
 		                if (File.Exists(TemplateFile) == false)
-		                    throw new ExcelBadUsageException("Template file not found: '" + TemplateFile + "'");
+                        //?TemplateFileNotFound"Template file not found: '{0}'"
+                        throw new ExcelBadUsageException("FileHelperMsg_TemplateFileNotFound", (s) => { return String.Format(s, TemplateFile); });
 
 		                if (TemplateFile != FileName)
 		                    File.Copy(TemplateFile, FileName, true);
@@ -378,7 +383,8 @@ namespace FileHelpers.DataLink
 		public override object[] ExtractRecords()
 		{
 			if (FileName == String.Empty)
-				throw new ExcelBadUsageException("You need to specify the WorkBookFile of the ExcelDataLink.");
+                //?WorkBookFileNotSpecified"You need to specify the WorkBookFile of the ExcelDataLink."
+                throw new ExcelBadUsageException("FileHelperMsg_WorkBookFileNotSpecified", FileHelpersException.SimpleMessageFunc);
 
 
 			ArrayList res = new ArrayList();

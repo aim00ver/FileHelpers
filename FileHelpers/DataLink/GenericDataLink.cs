@@ -26,12 +26,14 @@ namespace FileHelpers.DataLink
         public GenericDataLink(DataStorage provider1, DataStorage provider2)
         {
             if (provider1 == null)
-                throw new ArgumentException("provider1 can't be null", "provider1");
+                //?Provider1IsNull"provider 1 can't be null"
+                throw new FileHelpersException("FileHelperMsg_Provider1IsNull", FileHelpersException.SimpleMessageFunc);
             else
                 mDataStorage1 = provider1;
 
             if (provider2 == null)
-                throw new ArgumentException("provider2 can't be null", "provider2");
+                //?Provider2IsNull"provider 2 can't be null"
+                throw new FileHelpersException("FileHelperMsg_Provider2IsNull", FileHelpersException.SimpleMessageFunc);
             else
                 mDataStorage2 = provider2;
 
@@ -92,16 +94,20 @@ namespace FileHelpers.DataLink
         private void ValidateRecordTypes()
         {
             if (DataStorage1.RecordType == null)
-                throw new BadUsageException("DataLink1 can't have a null RecordType.");
+                //?DataLink1RecordTypeIsNull"DataLink1 can't have a null RecordType."
+                throw new BadUsageException("FileHelperMsg_DataLink1RecordTypeIsNull", FileHelpersException.SimpleMessageFunc);
 
             if (DataStorage2.RecordType == null)
-                throw new BadUsageException("DataLink2 can't have a null RecordType.");
+                //?DataLink2RecordTypeIsNull"DataLink2 can't have a null RecordType."
+                throw new BadUsageException("FileHelperMsg_DataLink2RecordTypeIsNull", FileHelpersException.SimpleMessageFunc);
 
-            if (DataStorage1.RecordType != DataStorage2.RecordType) {
-                    throw new BadUsageException("You can only use the same record type");
-                }
-       }
+            if (DataStorage1.RecordType != DataStorage2.RecordType)
+            {
+                //?DiffRecordTypeUsed"You can only use the same record type"
+                throw new BadUsageException("FileHelperMsg_DiffRecordTypeUsed", FileHelpersException.SimpleMessageFunc);
+            }
+        }
 
-       
+
     }
 }

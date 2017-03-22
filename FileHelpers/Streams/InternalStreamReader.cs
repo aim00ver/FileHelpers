@@ -72,9 +72,11 @@ namespace FileHelpers
                     : "encoding");
             }
             if (path.Length == 0)
-                throw new ArgumentException("Empty path", "path");
+                //?PathIsEmpty"Empty path"
+                throw new FileHelpersException("FileHelperMsg_PathIsEmpty", FileHelpersException.SimpleMessageFunc);
             if (bufferSize <= 0)
-                throw new ArgumentOutOfRangeException("bufferSize", "bufferSize must be positive");
+                //?BufferSizeIsNonPositive"bufferSize must be positive"
+                throw new FileHelpersException("FileHelperMsg_BufferSizeIsNonPositive", FileHelpersException.SimpleMessageFunc);
             var stream = new FileStream(path,
                 FileMode.Open,
                 FileAccess.Read,

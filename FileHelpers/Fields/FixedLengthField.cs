@@ -74,10 +74,8 @@ namespace FileHelpers
                 if (IsOptional)
                     return ExtractedInfo.Empty;
                 else {
-                    throw new BadUsageException("End Of Line found processing the field: " + FieldInfo.Name +
-                                                " at line " + line.mReader.LineNumber.ToString()
-                                                +
-                                                ". (You need to mark it as [FieldOptional] if you want to avoid this exception)");
+                    //?EOLInsideField"End Of Line found processing the field: {0} at line {1}. (You need to mark it as [FieldOptional] if you want to avoid this exception)"
+                    throw new BadUsageException("FileHelperMsg_EOLInsideField", (s) => { return String.Format(s, FieldInfo.Name, line.mReader.LineNumber.ToString()); });
                 }
             }
 
@@ -88,12 +86,8 @@ namespace FileHelpers
                     FixedMode == FixedMode.AllowVariableLength)
                     return new ExtractedInfo(line);
                 else {
-                    throw new BadUsageException("The string '" + line.CurrentString + "' (length " +
-                                                line.CurrentLength.ToString() + ") at line "
-                                                + line.mReader.LineNumber.ToString() +
-                                                " has less chars than the defined for " + FieldInfo.Name
-                                                + " (" + FieldLength.ToString() +
-                                                "). You can use the [FixedLengthRecord(FixedMode.AllowLessChars)] to avoid this problem.");
+                    //?StringLenLessThanDefined"The string '{0}' (length {1}) at line {2} has less chars than the defined for {3} ({4}). You can use the [FixedLengthRecord(FixedMode.AllowLessChars)] to avoid this problem."
+                    throw new BadUsageException("FileHelperMsg_StringLenLessThanDefined", (s) => { return String.Format(s, line.CurrentString, line.CurrentLength.ToString(), line.mReader.LineNumber.ToString(), FieldInfo.Name, FieldLength.ToString()); });
                 }
             }
             else if (line.CurrentLength > FieldLength &&
@@ -101,12 +95,8 @@ namespace FileHelpers
                      IsLast &&
                      FixedMode != FixedMode.AllowMoreChars &&
                      FixedMode != FixedMode.AllowVariableLength) {
-                throw new BadUsageException("The string '" + line.CurrentString + "' (length " +
-                                            line.CurrentLength.ToString() + ") at line "
-                                            + line.mReader.LineNumber.ToString() +
-                                            " has more chars than the defined for the last field "
-                                            + FieldInfo.Name + " (" + FieldLength.ToString() +
-                                            ").You can use the [FixedLengthRecord(FixedMode.AllowMoreChars)] to avoid this problem.");
+                //?StringLenGreaterThanDefined"The string '{0}' (length {1}) at line {2} has more chars than the defined for the last field {3} ({4}).You can use the [FixedLengthRecord(FixedMode.AllowMoreChars)] to avoid this problem."
+                throw new BadUsageException("FileHelperMsg_StringLenGreaterThanDefined", (s) => { return String.Format(s, line.CurrentString, line.CurrentLength.ToString(), line.mReader.LineNumber.ToString(), FieldInfo.Name, FieldLength.ToString()); });
             }
             else
                 return new ExtractedInfo(line, line.mCurrentPos + FieldLength);

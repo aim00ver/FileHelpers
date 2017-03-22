@@ -140,12 +140,10 @@ namespace FileHelpers.Dynamic
         /// <param name="lengths">The length of each field, must be the same that the number of fields.</param>
         public void SetFieldsLength(params int[] lengths)
         {
-            if (lengths.Length != mFields.Count) {
-                throw new BadUsageException(
-                    string.Format(
-                        "The number of elements is {0} and you pass {1}. This method require the same number of values than fields",
-                        mFields.Count,
-                        lengths.Length));
+            if (lengths.Length != mFields.Count)
+            {
+                //?ElementsNumberNotSame"The number of elements is {0} and you pass {1}. This method require the same number of values than fields"
+                throw new BadUsageException("FileHelperMsg_ElementsNumberNotSame", (s) => { return String.Format(s, mFields.Count, lengths.Length); });
             }
 
             for (int i = 0; i < mFields.Count; i++)

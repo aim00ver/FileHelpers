@@ -58,12 +58,13 @@ namespace FileHelpers
                             RecordInfo.Fields[i].FieldInfo.Name,
                             line.mReader.LineNumber,
                             -1,
-                            Messages.Errors.WrongConverter
-                                .FieldName(RecordInfo.Fields[i].FieldInfo.Name)
-                                .ConverterReturnedType(values[i].GetType().Name)
-                                .FieldType(RecordInfo.Fields[i].FieldInfo.FieldType.Name)
-                                .Text
-                            ,
+                            "FileHelperMsg_WrongConverter",
+                            //Messages.Errors.WrongConverter.FieldName(RecordInfo.Fields[i].FieldInfo.Name).ConverterReturnedType(values[i].GetType().Name)
+                            //.FieldType(RecordInfo.Fields[i].FieldInfo.FieldType.Name.Text
+                            (s) => {
+                                var tmp = StringHelper.ReplaceIgnoringCase(s, "$FieldName$", RecordInfo.Fields[i].FieldInfo.Name);
+                                return StringHelper.ReplaceIgnoringCase(tmp, "$ConverterReturnedType$", values[i].GetType().Name);
+                            },
                             ex);
                     }
                 }
@@ -101,12 +102,14 @@ namespace FileHelpers
                             RecordInfo.Fields[i].FieldInfo.Name,
                             line.mReader.LineNumber,
                             -1,
-                            Messages.Errors.WrongConverter
-                                .FieldName(RecordInfo.Fields[i].FieldInfo.Name)
-                                .ConverterReturnedType(values[i].GetType().Name)
-                                .FieldType(RecordInfo.Fields[i].FieldInfo.FieldType.Name)
-                                .Text
-                            ,
+                            "FileHelperMsg_WrongConverter",
+                            //Messages.Errors.WrongConverter.FieldName(RecordInfo.Fields[i].FieldInfo.Name).ConverterReturnedType(values[i].GetType().Name)
+                            //.FieldType(RecordInfo.Fields[i].FieldInfo.FieldType.Name).Text
+                            (s) => {
+                                var tmp = StringHelper.ReplaceIgnoringCase(s, "$FieldName$", RecordInfo.Fields[i].FieldInfo.Name);
+                                tmp = StringHelper.ReplaceIgnoringCase(tmp, "$ConverterReturnedType$", values[i].GetType().Name);
+                                return StringHelper.ReplaceIgnoringCase(tmp, "$FieldType$", RecordInfo.Fields[i].FieldInfo.FieldType.Name);
+                            },
                             ex);
                     }
                 }
@@ -120,12 +123,14 @@ namespace FileHelpers
         /// <param name="line">Input line we are testing</param>
         /// <returns>True if line is skipped</returns>
         private bool MustIgnoreLine(string line)
-        {
+        {/*
             if (RecordInfo.IgnoreEmptyLines) {
                 if ((RecordInfo.IgnoreEmptySpaces && StringHelper.IsNullOrWhiteSpace(line)) ||
                     line.Length == 0)
                     return true;
-            }
+            }*/
+            if(StringHelper.IsNullOrWhiteSpace(line) || line.Length == 0)
+                    return true;
 
             if (!String.IsNullOrEmpty(RecordInfo.CommentMarker)) {
                 if ((RecordInfo.CommentAnyPlace && StringHelper.StartsWithIgnoringWhiteSpaces(line, RecordInfo.CommentMarker, StringComparison.Ordinal)) ||

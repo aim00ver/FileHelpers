@@ -36,8 +36,8 @@ namespace FileHelpers
             : base(recordType)
         {
             if (!RecordInfo.IsDelimited) {
-                throw new BadUsageException(
-                    "The Delimited Engine only accepts record types marked with DelimitedRecordAttribute");
+                //?DelimitedRecordAttributeAbsent"The Delimited Engine only accepts Record Types marked with DelimitedRecordAttribute"
+                throw new BadUsageException("FileHelperMsg_DelimitedRecordAttributeAbsent", FileHelpersException.SimpleMessageFunc);
             }
         }
 
@@ -93,8 +93,8 @@ namespace FileHelpers
         public DelimitedFileEngine()
         {
             if (!RecordInfo.IsDelimited) {
-                throw new BadUsageException(
-                    "The Delimited Engine only accepts Record Types marked with DelimitedRecordAttribute");
+                //?DelimitedRecordAttributeAbsent"The Delimited Engine only accepts Record Types marked with DelimitedRecordAttribute"
+                throw new BadUsageException("FileHelperMsg_DelimitedRecordAttributeAbsent", FileHelpersException.SimpleMessageFunc);
             }
         }
 

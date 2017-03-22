@@ -26,7 +26,8 @@ namespace FileHelpers.DataLink
             : base(type)
         {
             if (type == null)
-                throw new BadUsageException("You need to pass a non null Type to the FileStorage.");
+                //?FileStorageProviderNoType "You need to pass a non null Type to the FileStorage."
+                throw new BadUsageException("FileHelperMsg_FileStorageProviderNoType", FileHelpersException.SimpleMessageFunc);
 
             mEngine = new FileHelperEngine(type);
             mErrorManager = mEngine.ErrorManager;
@@ -70,7 +71,8 @@ namespace FileHelpers.DataLink
         {
             if (mFileName == null ||
                 mFileName.Length == 0)
-                throw new BadUsageException("You need to set a FileName to the FileStorage Provider.");
+                //?FileStorageProviderNoName"You need to set a FileName to the FileStorage Provider."
+                throw new BadUsageException("FileHelperMsg_FileStorageProviderNoName", FileHelpersException.SimpleMessageFunc);
 
             mEngine.WriteFile(mFileName, records);
         }

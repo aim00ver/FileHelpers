@@ -91,7 +91,8 @@ namespace FileHelpers.ExcelNPOIStorage
         {
             FileInfo info = new FileInfo(filename);
             if (info.Exists == false)
-                throw new FileNotFoundException(string.Concat("Excel File '", filename, "' not found."), filename);
+                //?ExcelFileNotFound"Excel File '{0}' not found."
+                throw new FileHelpersException("FileHelperMsg_ExcelFileNotFound", (s) => { return String.Format(s, filename); });
 
             using (FileStream file = new FileStream(filename, FileMode.Open, FileAccess.Read)) {
                 var extension = Path.GetExtension(filename);
@@ -106,18 +107,16 @@ namespace FileHelpers.ExcelNPOIStorage
                     try {
                         mSheet = mWorkbook.GetSheet(SheetName);
                         if (mSheet == null) {
-                            throw new ExcelBadUsageException(string.Concat("The sheet '",
-                                SheetName,
-                                "' was not found in the workbook."));
+                            //?XlSheetWasNotFound"The sheet '{0}' was not found in the workbook."
+                            throw new ExcelBadUsageException("FileHelperMsg_XlSheetWasNotFound", (s) => { return String.Format(s, SheetName); });
                         }
 
                         var sheetIndex = mWorkbook.GetSheetIndex(mSheet);
                         mWorkbook.SetActiveSheet(sheetIndex);
                     }
                     catch {
-                        throw new ExcelBadUsageException(string.Concat("The sheet '",
-                            SheetName,
-                            "' was not found in the workbook."));
+                        //?XlSheetWasNotFound"The sheet '{0}' was not found in the workbook."
+                        throw new ExcelBadUsageException("FileHelperMsg_XlSheetWasNotFound", (s) => { return String.Format(s, SheetName); });
                     }
                 }
             }
@@ -327,7 +326,8 @@ namespace FileHelpers.ExcelNPOIStorage
 
                 if (!String.IsNullOrEmpty(TemplateFile)) {
                     if (File.Exists(TemplateFile) == false)
-                        throw new ExcelBadUsageException(string.Concat("Template file not found: '", TemplateFile, "'"));
+                        //?TemplateFileNotFound"Template file not found: '{0}'"
+                        throw new ExcelBadUsageException("FileHelperMsg_TemplateFileNotFound", (s) => { return String.Format(s, TemplateFile); });
 
                     if (String.Compare(TemplateFile, FileName, StringComparison.OrdinalIgnoreCase) != 0)
                         File.Copy(TemplateFile, FileName, true);
@@ -364,7 +364,8 @@ namespace FileHelpers.ExcelNPOIStorage
         public override object[] ExtractRecords()
         {
             if (String.IsNullOrEmpty(FileName))
-                throw new ExcelBadUsageException("You need to specify the WorkBookFile of the ExcelDataLink.");
+                //?WorkBookFileNotSpecified"You need to specify the WorkBookFile of the ExcelDataLink."
+                throw new ExcelBadUsageException("FileHelperMsg_WorkBookFileNotSpecified", FileHelpersException.SimpleMessageFunc);
 
             var res = new ArrayList();
 
