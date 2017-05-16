@@ -26,7 +26,7 @@ namespace FileHelpers
         internal BadUsageException(LineInfo line, string messageCode, Func<string, string> messageFunc)
             : this(line.mReader.LineNumber, line.mCurrentPos, messageCode, messageFunc) {}
 
-        protected internal BadUsageException(string messageCode, Func<string, string> messageFunc)
-            : base(messageCode, messageFunc) { }
+        protected internal BadUsageException(string messageCode, Func<string, string> messageFunc, string fieldName = null)
+            : base(0, 0, messageCode, messageFunc, fieldName) { }
     }
 }

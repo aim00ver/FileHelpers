@@ -113,7 +113,7 @@ namespace FileHelpers
 
             return res;*/
             //!"Line: {0}. Column: {1}. Field: {2}. Error Converting '{3}' to type: '{4}'."
-            return (s) => { return String.Format(s, lineNumber.ToString(), columnNumber.ToString(), fieldName, origValue, destType?.Name); };
+            return (s) => { return String.Format(s, /*lineNumber.ToString(), columnNumber.ToString(), fieldName,*/ origValue, destType?.Name); };
         }
 
         #endregion

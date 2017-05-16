@@ -151,9 +151,6 @@ namespace FileHelpers
             else */{
                 int sepPos = line.IndexOf(Separator);
 
-                Func<string, string> str = (s) => { return s + s; };
-                string sa = str("test");
-
                 if (sepPos == -1) {
                     if (IsLast /*&& IsArray*/)
                         return new ExtractedInfo(line);

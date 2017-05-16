@@ -53,13 +53,15 @@ namespace FileHelpers
             Column = column;
         }
         */
-        public FileHelpersException(int line, int column, string messageCode, Func<string, string> messageFunc)
+        public FileHelpersException(int line, int column, string messageCode, Func<string, string> messageFunc, string fieldName = null)
             : this(messageCode, messageFunc)
         {
             Line = line;
             Column = column;
+            FieldName = fieldName;
         }
-        
+
+        public string FieldName { get; set; }
         public int Line { get; set; }
         public int Column { get; set; }
         public Func<string, string> MessageFunc;

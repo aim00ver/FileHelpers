@@ -489,7 +489,9 @@ namespace FileHelpers
                 if (NullValue != null) {
                     if (!FieldTypeInternal.IsAssignableFrom(NullValue.GetType())) {
                         //?NullValueWrongType"The NullValue is of type: {0} that is not asignable to the field {1} of type: {2}"
-                        throw new BadUsageException("FileHelperMsg_NullValueWrongType", (s) => { return String.Format(s, NullValue.GetType().Name, FieldInfo.Name, FieldTypeInternal.Name); });
+                        throw new BadUsageException("FileHelperMsg_NullValueWrongType", 
+                            (s) => { return String.Format(s, NullValue.GetType().Name, FieldInfo.Name, FieldTypeInternal.Name); },
+                            FieldInfo.Name);
                     }
                 }
             }
@@ -655,30 +657,48 @@ namespace FileHelpers
             {
                 try
                 {
+                    /*
                     if (IsNotEmpty && String.IsNullOrEmpty(extractedString))
                     {
                         //?ValueNonPopulated"The value is empty and must be populated."
                         throw new FileHelpersException("FileHelperMsg_ValueNonPopulated", FileHelpersException.SimpleMessageFunc);
                     }
-                    else if (this.Converter == null)
+                    else */
+                    if (IsStringField)
                     {
-                        if (IsStringField)
-                            val = TrimString(extractedString);
-                        else
+                        if (IsNotEmpty && String.IsNullOrEmpty(extractedString))
                         {
-                            extractedString = extractedString.Trim();
-
-                            if (extractedString.Length == 0)
-                            {
+                            var nullVal = GetNullValue(line);
+                            if ((nullVal == null) || (string.IsNullOrEmpty(nullVal.ToString())))
+                                throw new FileHelpersException("FileHelperMsg_ValueNonPopulated", FileHelpersException.SimpleMessageFunc);
+                            else
                                 return new AssignResult
                                 {
-                                    Value = GetNullValue(line),
+                                    Value = nullVal.ToString(),
                                     NullValueUsed = true
                                 };
-                            }
-                            else
-                                val = Convert.ChangeType(extractedString, FieldTypeInternal, null);
                         }
+                        else
+                            val = TrimString(extractedString);
+                    }
+                    else if (this.Converter == null)
+                    {
+                        extractedString = extractedString.Trim();
+
+                        if (extractedString.Length == 0)
+                        {
+                            var nullVal = GetNullValue(line);
+                            if ((nullVal == null) && (IsNotEmpty))
+                                throw new FileHelpersException("FileHelperMsg_ValueNonPopulated", FileHelpersException.SimpleMessageFunc);
+
+                            return new AssignResult
+                            {
+                                Value = nullVal,
+                                NullValueUsed = true
+                            };
+                        }
+                        else
+                            val = Convert.ChangeType(extractedString, FieldTypeInternal, null);
                     }
                     else
                     {
@@ -687,9 +707,13 @@ namespace FileHelpers
                         if (this.Converter.CustomNullHandling == false &&
                             trimmedString.Length == 0)
                         {
+                            var nullVal = GetNullValue(line);
+                            if ((nullVal == null) && (IsNotEmpty))
+                                throw new FileHelpersException("FileHelperMsg_ValueNonPopulated", FileHelpersException.SimpleMessageFunc);
+
                             return new AssignResult
                             {
-                                Value = GetNullValue(line),
+                                Value = nullVal,
                                 NullValueUsed = true
                             };
                         }
@@ -817,7 +841,8 @@ namespace FileHelpers
                         return null;
 
                     //?FieldNullValueIsMissing"No value found for the value type field: '{0}' Class: '{1}'. {2}You must use the [FieldNullValue] attribute because this is a value type and can't be null or use a Nullable Type instead of the current type.";
-                    throw new NullValueNotFoundException(line, "FileHelperMsg_FieldNullValueIsMissing", (s) => { return String.Format(s, FieldInfo.Name, FieldInfo.DeclaringType.Name, Environment.NewLine); });
+                    //(s) => { return String.Format(s, FieldInfo.Name, FieldInfo.DeclaringType.Name, Environment.NewLine); }
+                    throw new NullValueNotFoundException(line, "FileHelperMsg_FieldNullValueIsMissing", FileHelpersException.SimpleMessageFunc);
                 }
                 else
                     return null;
