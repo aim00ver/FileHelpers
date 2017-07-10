@@ -10,20 +10,20 @@ namespace FileHelpers
     {
         /// <summary>Creates an instance of an NullValueNotFoundException.</summary>
         /// <param name="message">The exception Message</param>
-        protected internal NullValueNotFoundException(string messageCode, Func<string, string> messageFunc)
-            : base(messageCode, messageFunc) {}
+        protected internal NullValueNotFoundException(string messageCode, List<string> messageParams)
+            : base(messageCode, messageParams) {}
 
         /// <summary>Creates an instance of an NullValueNotFoundException.</summary>
         /// <param name="message">The exception Message</param>
         /// <param name="line">The line number where the problem was found</param>
         /// <param name="column">The column number where the problem was found</param>
-        protected internal NullValueNotFoundException(int line, int column, string messageCode, Func<string, string> messageFunc)
-            : base(line, column, messageCode, messageFunc) {}
+        protected internal NullValueNotFoundException(int line, int column, string messageCode, List<string> messageParams)
+            : base(line, column, messageCode, messageParams) {}
 
         /// <summary>Creates an instance of an NullValueNotFoundException.</summary>
         /// <param name="message">The exception Message</param>
         /// <param name="line">Line to display in message</param>
-        internal NullValueNotFoundException(LineInfo line, string messageCode, Func<string, string> messageFunc)
-            : base(line, messageCode, messageFunc) {}
+        internal NullValueNotFoundException(LineInfo line, string messageCode, List<string> messageParams)
+            : base(line, messageCode, messageParams) {}
     }
 }

@@ -51,11 +51,16 @@ namespace FileHelpers
         /// </summary>
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         internal int mLineNumber;
-
         /// <summary>The line number of the error</summary>
         public int LineNumber
         {
             get { return mLineNumber; }
+        }
+
+        internal int mDetailIndex = -1;
+        public int DetailIndex
+        {
+            get { return mDetailIndex; }
         }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]

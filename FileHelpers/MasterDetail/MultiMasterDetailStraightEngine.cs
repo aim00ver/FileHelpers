@@ -119,12 +119,12 @@ namespace FileHelpers.MasterDetail
             {
                 if (mTypes[i] == null)
                     //?TypeIsNullAtIndex"The type at index {0} is null."
-                    throw new BadUsageException("FileHelperMsg_TypeIsNullAtIndex", (s) => { return String.Format(s, i); });
+                    throw new BadUsageException("FileHelperMsg_TypeIsNullAtIndex", new List<string>() { i.ToString() });
 
                 if (mRecordInfoHash.ContainsKey(mTypes[i].Master))
                 {
                     //?TypeIsPassedTwice"The type '{0}' is already in the engine. You can't pass the same type twice to the constructor."
-                    throw new BadUsageException("FileHelperMsg_TypeIsPassedTwice", (s) => { return String.Format(s, mTypes[i].Master.Name); });
+                    throw new BadUsageException("FileHelperMsg_TypeIsPassedTwice", new List<string>() { mTypes[i].Master.Name });
                 }
 
                 mMultiRecordInfo[i] = FileHelpers.RecordInfo.Resolve(mTypes[i].Master);
@@ -177,12 +177,12 @@ namespace FileHelpers.MasterDetail
         {
             if (reader == null)
                 //?StreamReaderIsNull"The reader of the Stream can´t be null"
-                throw new BadUsageException("FileHelperMsg_StreamReaderIsNull", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_StreamReaderIsNull", null);
 
             if (mRecordSelector == null)
             {
                 //?RecordselectorIsNull"The Recordselector can´t be null, please pass a not null Selector in the constructor."
-                throw new BadUsageException("FileHelperMsg_RecordselectorIsNull", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_RecordselectorIsNull", null);
             }
 
             ResetFields();
@@ -240,7 +240,7 @@ namespace FileHelpers.MasterDetail
                         catch (Exception ex)
                         {
                             //?SelectorFailed"Selector failed to process correctly"
-                            throw new FileHelpersException("FileHelperMsg_SelectorFailed", FileHelpersException.SimpleMessageFunc, ex);
+                            throw new FileHelpersException("FileHelperMsg_SelectorFailed", null, ex);
                         }
 
                         if (currType != null)
@@ -249,7 +249,7 @@ namespace FileHelpers.MasterDetail
                             if (info == null)
                             {
                                 //?RecordTypeNotConfigured"A record is of type '{0}' which this engine is not configured to handle. Try adding this type to the constructor."
-                                throw new BadUsageException("FileHelperMsg_RecordTypeNotConfigured", (s) => { return String.Format(s, currType.Name); });
+                                throw new BadUsageException("FileHelperMsg_RecordTypeNotConfigured", new List<string>() { currType.Name });
                             }
                             record = new MasterMultiDetails();
 
@@ -280,15 +280,17 @@ namespace FileHelpers.MasterDetail
                             if (skip == false)
                             {
                                 var values = new object[info.FieldCount];
-                                if (info.Operations.StringToRecord(lastMaster, line, values, mErrorManager))
+                                Tuple<int, int>[] valuesPosition;
+                                if (info.Operations.StringToRecord(lastMaster, line, values, mErrorManager, -1, out valuesPosition))
                                 {
                                     if (MustNotifyRead) // Avoid object creation
-                                        skip = OnAfterReadRecord(lineMaster, lastMaster, e.RecordLineChanged, LineNumber);
+                                        skip = OnAfterReadRecord(lineMaster, lastMaster, valuesPosition, e.RecordLineChanged, LineNumber);
 
                                     if (skip == false)
                                         record.Master = lastMaster;
                                 }
                                 var detailLocations = new Dictionary<Type, Tuple<int, int>>();
+                                var detailsValuesPosition = new Dictionary<Type, List<Tuple<int, int>>>();
                                 if (currentLine.Length > lineMaster.Length)
                                 {
                                     var detailsLine = currentLine.Substring(masterEndIndex);
@@ -303,19 +305,37 @@ namespace FileHelpers.MasterDetail
 
                                         detailLocations.Add(detailSelector.Detail, new Tuple<int, int>
                                             (masterEndIndex + 1 + detailStartIndex, masterEndIndex + 1 + detailEndIndex - detailStartIndex));
+                                        detailsValuesPosition.Add(detailSelector.Detail, new List<Tuple<int, int>>());
 
                                         var lineDetails = detailsLine.Substring(detailStartIndex, detailEndIndex - detailStartIndex);
                                         var detailInfo = (RecordInfo)mRecordInfoHash[detailSelector.Detail];
                                         var valuesDetail = new object[detailInfo.FieldCount];
                                         tmpDetails.Clear();
-                                        foreach (var lineDetail in lineDetails.Split(new []{ detailSelector.Separator }, StringSplitOptions.RemoveEmptyEntries))
+                                        int currentDetailAbsoluteStart = masterEndIndex + detailStartIndex;
+                                        int detailIndex = -1;
+                                        foreach (var lineDetail in lineDetails.Split(new []{ detailSelector.Separator },StringSplitOptions.None/*RemoveEmptyEntries*/))
                                         {
+                                            detailIndex++;
+                                            if (string.IsNullOrEmpty(lineDetail))
+                                            {
+                                                currentDetailAbsoluteStart += detailSelector.Separator.Length;
+                                                continue;
+                                            }
+
                                             try
                                             {
                                                 line.ReLoad(lineDetail);
-                                                var lastChild = detailInfo.Operations.StringToRecord(line, valuesDetail, ErrorManager);
+                                                Tuple<int, int>[] valuesPositionExt;
+                                                var lastChild = detailInfo.Operations.StringToRecord(line, valuesDetail, ErrorManager, detailIndex, out valuesPositionExt);
                                                 if (lastChild != null)
                                                     tmpDetails.Add(lastChild);
+                                                if (valuesPositionExt.Length > 0)
+                                                {
+                                                    var last = valuesPositionExt.Last();
+                                                    foreach (var pos in valuesPositionExt)
+                                                        detailsValuesPosition[detailSelector.Detail].Add(new Tuple<int, int>(pos.Item1 + currentDetailAbsoluteStart
+                                                            , pos.Item2 + (pos == last ? 1 : 0)));
+                                                }
                                             }
                                             catch (Exception ex)
                                             {
@@ -331,23 +351,25 @@ namespace FileHelpers.MasterDetail
                                                             mErrorType = ErrorInfo.ErrorTypeEnum.Detail,
                                                             mFailedOnType = detailSelector.Detail,
                                                             mLineNumber = mLineNumber,
+                                                            mDetailIndex = detailIndex,
                                                             mExceptionInfo = ex,
                                                             mRecordString = currentLine,
                                                             mStart = detailLocations[detailSelector.Detail].Item1,
                                                             mLength = detailLocations[detailSelector.Detail].Item2
                                                         };
-                                                        //							err.mColumnNumber = mColumnNum;
+                                                        //err.mColumnNumber = mColumnNum;
 
                                                         mErrorManager.AddError(err);
-                                                        throw;//fail all record if detail failed
+                                                        //throw;//fail all record if detail failed
+                                                        break;
                                                 }
                                             }
+                                            currentDetailAbsoluteStart += detailSelector.Separator.Length + lineDetail.Length;
                                         }
                                         record.Details.Add(detailSelector.Detail, tmpDetails.ToArray());
                                     }
 
-                                    OnAfterReadRecordWithDetails(currentLine, record, e.RecordLineChanged, LineNumber,
-                                        new Tuple<int, int>(0, masterEndIndex), detailLocations);
+                                    OnAfterReadRecordWithDetails(currentLine, record, e.RecordLineChanged, LineNumber, valuesPosition, detailsValuesPosition);
                                 }
                                 if (skip == false)
                                     resArray.Add(record);
@@ -450,11 +472,11 @@ namespace FileHelpers.MasterDetail
         {
             if (writer == null)
                 //?StreamWriterIsNull"The writer of the Stream can be null"
-                throw new BadUsageException("FileHelperMsg_StreamWriterIsNull", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_StreamWriterIsNull", null);
 
             if (records == null)
                 //?RecordsCannotBeNull"The records cannot be null. Try with an empty array."
-                throw new BadUsageException("FileHelperMsg_RecordsCannotBeNull", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_RecordsCannotBeNull", null);
 
             ResetFields();
 
@@ -492,7 +514,7 @@ namespace FileHelpers.MasterDetail
                 {
                     if (rec == null)
                         //?RecordIsNullAtIndex"The record at index {0} is null."
-                        throw new BadUsageException("FileHelperMsg_RecordIsNullAtIndex", (s) => { return String.Format(s, recIndex); });
+                        throw new BadUsageException("FileHelperMsg_RecordIsNullAtIndex", new List<string>() { recIndex.ToString() });
 
                     bool skip = false;
 
@@ -507,7 +529,7 @@ namespace FileHelpers.MasterDetail
                     if (info == null)
                     {
                         //?RecordCannotBeHandledAtIndex"The record at index {0} is of type '{1}' and the engine dont handle this type. You can add it to the constructor."
-                        throw new BadUsageException("FileHelperMsg_RecordCannotBeHandledAtIndex", (s) => { return String.Format(s, recIndex, rec.GetType().Name); });
+                        throw new BadUsageException("FileHelperMsg_RecordCannotBeHandledAtIndex", new List<string>() { recIndex.ToString(), rec.GetType().Name });
                     }
 
                     if (skip == false)
@@ -524,7 +546,7 @@ namespace FileHelpers.MasterDetail
                             if (detailsInfo == null || detailsSelector == null)
                             {
                                 //?RecordCannotBeHandledAtIndex"The record at index {0} is of type '{1}' and the engine dont handle this type. You can add it to the constructor."
-                                throw new BadUsageException("FileHelperMsg_RecordCannotBeHandledAtIndex", (s) => { return String.Format(s, recIndex, details.Key.Name); });
+                                throw new BadUsageException("FileHelperMsg_RecordCannotBeHandledAtIndex", new List<string>() { recIndex.ToString(), details.Key.Name });
                             }
                             currentLine += detailsSelector.Start;
                             for (var d = 0; d < details.Value.Length; d++)
@@ -626,10 +648,10 @@ namespace FileHelpers.MasterDetail
         {
             if (types == null)
                 //?NullTypeArrNotValidMultiRecordEngine"A null Type[] is not valid for the MultiRecordEngine."
-                throw new BadUsageException("FileHelperMsg_NullTypeArrNotValidMultiRecordEngine", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_NullTypeArrNotValidMultiRecordEngine", null);
             if (types.Length == 0)
                 //?EmptyTypeArrNotValidMultiRecordEngine"An empty Type[] is not valid for the MultiRecordEngine."
-                throw new BadUsageException("FileHelperMsg_EmptyTypeArrNotValidMultiRecordEngine", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_EmptyTypeArrNotValidMultiRecordEngine", null);
             /*if (types.Length == 1)
             {
                 throw new BadUsageException(

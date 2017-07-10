@@ -143,7 +143,7 @@ namespace FileHelpers.Dynamic
             if (lengths.Length != mFields.Count)
             {
                 //?ElementsNumberNotSame"The number of elements is {0} and you pass {1}. This method require the same number of values than fields"
-                throw new BadUsageException("FileHelperMsg_ElementsNumberNotSame", (s) => { return String.Format(s, mFields.Count, lengths.Length); });
+                throw new BadUsageException("FileHelperMsg_ElementsNumberNotSame", new List<string>() { mFields.Count.ToString(), lengths.Length.ToString() });
             }
 
             for (int i = 0; i < mFields.Count; i++)

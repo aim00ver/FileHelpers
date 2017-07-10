@@ -114,7 +114,7 @@ namespace FileHelpers
                     break;
                 default:
                     //?ConverterNotFound"Converter '{0}' not found, you must specify a valid converter."
-                    throw new BadUsageException("FileHelperMsg_ConverterNotFound", (s) => { return String.Format(s, converter.ToString()); });
+                    throw new BadUsageException("FileHelperMsg_ConverterNotFound", new List<string>() { converter.ToString() });
             }
             //mType = type;
 
@@ -185,11 +185,11 @@ namespace FileHelpers
                 if (constructor == null) {
                     if (args.Length == 0) {
                         //?EmptyConstructorForConverter"Empty constructor for converter: {0} was not found. You must add a constructor without args (can be public or private)"
-                        throw new BadUsageException("FileHelperMsg_EmptyConstructorForConverter", (s) => { return String.Format(s, convType.Name); });
+                        throw new BadUsageException("FileHelperMsg_EmptyConstructorForConverter", new List<string>() { convType.Name });
                     }
                     else {
                         //?ConstructorForConverterNotFound"Constructor for converter: {0} with these arguments: ({1}) was not found. You must add a constructor with this signature (can be public or private)"
-                        throw new BadUsageException("FileHelperMsg_ConstructorForConverterNotFound", (s) => { return String.Format(s, convType.Name, ArgsDesc(args)); });
+                        throw new BadUsageException("FileHelperMsg_ConstructorForConverterNotFound", new List<string>() { convType.Name, ArgsDesc(args) });
                     }
                 }
 
@@ -205,7 +205,7 @@ namespace FileHelpers
 
             else
                 //!"The custom converter must inherit from ConverterBase"
-                throw new BadUsageException("FileHelperMsg_CustomConverterMustInheritConverterBase", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_CustomConverterMustInheritConverterBase", null);
         }
 
         #endregion
@@ -216,7 +216,7 @@ namespace FileHelpers
         {
             if (args == null) {
                 //?ArgsCanBeNull"The args to the constructor can be null, if you do not want to pass anything into them."
-                throw new BadUsageException("FileHelperMsg_ArgsCanBeNull", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_ArgsCanBeNull", null);
             }
 
             var res = new Type[args.Length];
@@ -295,7 +295,7 @@ namespace FileHelpers
 
             if (valid == false) {
                 //?ConverterIsWrong"The converter of the field: '{0}' is wrong. The field is of Type: {1} and the converter is for type: {2}"
-                throw new BadUsageException("FileHelperMsg_ConverterIsWrong", (s) => { return String.Format(s, fi.Name, fieldType.Name, Kind.ToString()); });
+                throw new BadUsageException("FileHelperMsg_ConverterIsWrong", new List<string>() { fi.Name, fieldType.Name, Kind.ToString() });
             }
         }
     }

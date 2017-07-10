@@ -205,7 +205,7 @@ namespace FileHelpers
         {
             if (typeof (IComparable).IsAssignableFrom(recordClass) == false) {
                 //?RecordClassNonComparable"The record class must implement the interface IComparable to use the Sort feature."
-                throw new BadUsageException("FileHelperMsg_RecordClassNonComparable", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_RecordClassNonComparable", null);
             }
 
             var engine = new FileHelperEngine(recordClass);
@@ -231,7 +231,7 @@ namespace FileHelpers
         {
             if (typeof (IComparable).IsAssignableFrom(recordClass) == false) {
                 //?RecordClassNonComparable"The record class must implement the interface IComparable to use the Sort feature."
-                throw new BadUsageException("FileHelperMsg_RecordClassNonComparable", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_RecordClassNonComparable", null);
             }
 
             var engine = new FileHelperEngine(recordClass);
@@ -263,7 +263,7 @@ namespace FileHelpers
 
             if (fi == null)
                 //?NoFieldInRecordClass"The record class not contains the field {0}"
-                throw new BadUsageException("FileHelperMsg_NoFieldInRecordClass", (s) => { return String.Format(s, fieldName); });
+                throw new BadUsageException("FileHelperMsg_NoFieldInRecordClass", new List<string>() { fieldName });
 
             object[] res = engine.ReadFile(sourceFile);
 
@@ -300,7 +300,7 @@ namespace FileHelpers
 
                 if (fi == null)
                     //?NoFieldInRecordClass"The record class not contains the field {0}"
-                    throw new BadUsageException("FileHelperMsg_NoFieldInRecordClass", (s) => { return String.Format(s, fieldName); });
+                    throw new BadUsageException("FileHelperMsg_NoFieldInRecordClass", new List<string>() { fieldName });
 
                 IComparer comparer = new FieldComparer(fi, ascending);
 
@@ -321,7 +321,7 @@ namespace FileHelpers
 
                 if (typeof (IComparable).IsAssignableFrom(recordClass) == false) {
                     //?RecordClassNonComparable"The record class must implement the interface IComparable to use the Sort feature."
-                    throw new BadUsageException("FileHelperMsg_RecordClassNonComparable", FileHelpersException.SimpleMessageFunc);
+                    throw new BadUsageException("FileHelperMsg_RecordClassNonComparable", null);
                 }
 
                 Array.Sort(records);
@@ -346,7 +346,7 @@ namespace FileHelpers
                     : -1;
                 if (typeof (IComparable).IsAssignableFrom(mFieldInfo.FieldType) == false) {
                     //?FieldNonComparable"The field {0} needs to implement the interface IComparable"
-                    throw new BadUsageException("FileHelperMsg_FieldNonComparable", (s) => { return String.Format(s, mFieldInfo.Name); });
+                    throw new BadUsageException("FileHelperMsg_FieldNonComparable", new List<string>() { mFieldInfo.Name });
                 }
             }
 

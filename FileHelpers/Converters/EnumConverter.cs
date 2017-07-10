@@ -12,7 +12,7 @@ namespace FileHelpers
         {
             if (sourceEnum.IsEnum == false)
                 //?ImputIsNotEnum"The Input sourceType must be an Enum but is of type {0}" 
-                throw new BadUsageException("FileHelperMsg_ImputIsNotEnum", (s) => { return String.Format(s, sourceEnum.Name); });
+                throw new BadUsageException("FileHelperMsg_ImputIsNotEnum", new List<string>() { sourceEnum.Name });
 
             mEnumType = sourceEnum;
         }
@@ -24,7 +24,7 @@ namespace FileHelpers
             }
             catch (ArgumentException) {
                 //?EnumValueNotFound"The value {0} is not present in the Enum."
-                throw new ConvertException(from, mEnumType, "FileHelperMsg_EnumValueNotFound", (s) => { return String.Format(s, from); });
+                throw new ConvertException(from, mEnumType, "FileHelperMsg_EnumValueNotFound", new List<string>() { from });
             }
         }
     }

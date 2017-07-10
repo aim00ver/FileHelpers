@@ -34,7 +34,7 @@ namespace FileHelpers
             if (commentMarker == null ||
                 commentMarker.Trim().Length == 0)
                 //?EmptyCommentString"The comment string parameter can't be null or empty."
-                throw new BadUsageException("FileHelperMsg_EmptyCommentString", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_EmptyCommentString", null);
 
             CommentMarker = commentMarker.Trim();
             AnyPlace = anyPlace;

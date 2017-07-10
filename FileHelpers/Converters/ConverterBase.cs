@@ -29,7 +29,7 @@ namespace FileHelpers
                 }
                 catch {
                     //?InvalidDateTimeConverterFormat"The format: '{0}' is invalid for the DateTime Converter."
-                    throw new BadUsageException("FileHelperMsg_InvalidDateTimeConverterFormat", (s) => { return String.Format(s, value); });
+                    throw new BadUsageException("FileHelperMsg_InvalidDateTimeConverterFormat", new List<string>() { value });
                 }
 
                 mDefaultDateTimeFormat = value;

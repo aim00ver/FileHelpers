@@ -19,7 +19,7 @@ namespace FileHelpers
         public string FieldStringValue { get; private set; }
 
         /// <summary>Extra info about the error.</summary>
-        public Func<string, string> MessageExtra { get; private set; }
+        public List<string> ParamsExtra { get; private set; }
 
         /// <summary>The message without the Line, Column and FieldName.</summary>
         //public string MessageOriginal { get; private set; }
@@ -44,7 +44,7 @@ namespace FileHelpers
         /// <param name="origValue">The value to convert.</param>
         /// <param name="destType">The destination Type.</param>
         public ConvertException(string origValue, Type destType)
-            : this(origValue, destType, "", FileHelpersException.SimpleMessageFunc) { }
+            : this(origValue, destType, "", null) { }
 
 
         /// <summary>
@@ -52,9 +52,9 @@ namespace FileHelpers
         /// </summary>
         /// <param name="origValue">The value to convert.</param>
         /// <param name="destType">The destination Type.</param>
-        /// <param name="extraInfo">Additional info of the error.</param>
-        public ConvertException(string origValue, Type destType, string extraCode, Func<string, string> extraInfo)
-            : this(origValue, destType, string.Empty, -1, -1, extraCode, extraInfo, null) { }
+        /// <param name="extraParams">Additional info of the error.</param>
+        public ConvertException(string origValue, Type destType, string extraCode, List<string> extraParams)
+            : this(origValue, destType, string.Empty, -1, -1, extraCode, extraParams, null) { }
 
         /// <summary>
         /// Create a new ConvertException object
@@ -72,9 +72,9 @@ namespace FileHelpers
             int lineNumber,
             int columnNumber,
             string extraCode,
-            Func<string, string> extraInfo,
+            List<string> extraParams,
             Exception innerEx)
-            : base("FileHelperMsg_ConversionError", MessageBuilder(origValue, destType, fieldName, lineNumber, columnNumber, extraInfo), innerEx)
+            : base("FileHelperMsg_ConversionError", MessageBuilder(origValue, destType, fieldName, lineNumber, columnNumber, extraParams), innerEx)
         {
             //MessageOriginal = string.Empty;
             FieldStringValue = origValue;
@@ -83,18 +83,18 @@ namespace FileHelpers
             ColumnNumber = columnNumber;
             FieldName = fieldName;
             CodeExtra = extraCode;
-            MessageExtra = extraInfo;
+            ParamsExtra = extraParams;
 
             //if (origValue != null && destType != null)
             //   MessageOriginal = MessageBuilder(origValue, destType, fieldName, lineNumber, columnNumber, extraInfo)("Line: {0}. Column: {1}. Field: {2}. Error Converting '{3}' to type: '{4}'.");
         }
 
-        private static Func<string, string> MessageBuilder(string origValue,
+        private static List<string> MessageBuilder(string origValue,
             Type destType,
             string fieldName,
             int lineNumber,
             int columnNumber,
-            Func<string, string> extraInfo)
+            List<string> extraParams)
         {
             /*var res = "Line: {0}. Column: {1}. Field: {2}. Error Converting '{3}' to type: '{4}'.";
             if (lineNumber >= 0)
@@ -113,7 +113,7 @@ namespace FileHelpers
 
             return res;*/
             //!"Line: {0}. Column: {1}. Field: {2}. Error Converting '{3}' to type: '{4}'."
-            return (s) => { return String.Format(s, /*lineNumber.ToString(), columnNumber.ToString(), fieldName,*/ origValue, destType?.Name); };
+            return new List<string>() { /*lineNumber.ToString(), columnNumber.ToString(), fieldName,*/ origValue, destType?.Name };
         }
 
         #endregion

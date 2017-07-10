@@ -107,7 +107,7 @@ namespace FileHelpers
                         !line.StartsWith(Separator) &&
                         !line.IsEOL()) {
                         //?QuotedCharBeforeSeparator"The field {0} is quoted but the quoted char: {1} not is just before the separator (You can use [FieldTrim] to avoid this error)"
-                        throw new BadUsageException(line, "FileHelperMsg_QuotedCharBeforeSeparator", (s) => { return String.Format(s, this.FieldInfo.Name, quotedStr); });
+                        throw new BadUsageException(line, "FileHelperMsg_QuotedCharBeforeSeparator", new List<string>() { this.FieldInfo.Name, quotedStr });
                     }
                     return res;
                 }
@@ -118,12 +118,12 @@ namespace FileHelpers
                     else if (line.StartsWithTrim(quotedStr))
                     {
                         //?SpaceBeforeQuotedChar"The field '{0}' has spaces before the QuotedChar at line {1}. Use the TrimAttribute to by pass this error. Field String: {2}"
-                        throw new BadUsageException("FileHelperMsg_SpaceBeforeQuotedChar", (s) => { return string.Format(s, FieldInfo.Name, line.mReader.LineNumber, line.CurrentString); });
+                        throw new BadUsageException("FileHelperMsg_SpaceBeforeQuotedChar", new List<string>() { FieldInfo.Name, line.mReader.LineNumber.ToString(), line.CurrentString });
                     }
                     else
                     {
                         //?FieldNotStartsWithQuotedChar"The field '{0}' does not begin with the QuotedChar at line {1}. You can use FieldQuoted(QuoteMode.OptionalForRead) to allow optional quoted field. Field String: {2}"
-                        throw new BadUsageException("FileHelperMsg_FieldNotStartsWithQuotedChar", (s) => { return string.Format(s, FieldInfo.Name, line.mReader.LineNumber, line.CurrentString); });
+                        throw new BadUsageException("FileHelperMsg_FieldNotStartsWithQuotedChar", new List<string>() { FieldInfo.Name, line.mReader.LineNumber.ToString(), line.CurrentString });
                     }
                 }
             }
@@ -156,17 +156,17 @@ namespace FileHelpers
                         return new ExtractedInfo(line);
 
                     if ( NextIsOptional == false) {
-                        Func<string, string> msg;
+                        List<string> msg;
                         string msgCode;
                         if (IsFirst && line.EmptyFromPos())
                         {
                             //!"The line {0} is empty. Maybe you need to use the attribute [IgnoreEmptyLines] in your record class."
-                            msg = (s) => string.Format(s, line.mReader.LineNumber);
+                            msg = new List<string>() { line.mReader.LineNumber.ToString() };
                             msgCode = "FileHelperMsg_LineIsEmpty";
                         }
                         else {
                             //!"Delimiter '{0}' not found after field '{1}' (the record has less fields, the delimiter is wrong or the next field must be marked as optional)."
-                            msg = (s) => string.Format(s, Separator, this.FieldInfo.Name, line.mReader.LineNumber);
+                            msg = new List<string>() { Separator, this.FieldInfo.Name, line.mReader.LineNumber.ToString() };
                             msgCode = "FileHelperMsg_DelimiterNotFoundAfterField";
                         }
 
@@ -197,7 +197,7 @@ namespace FileHelpers
                 (QuoteMultiline == MultilineMode.AllowForRead ||
                  QuoteMultiline == MultilineMode.NotAllow)) {
                 //?NewLineInsideValue"One value for the field {0} has a new line inside. To allow write this value you must add a FieldQuoted attribute with the multiline option in true."
-                throw new BadUsageException("FileHelperMsg_NewLineInsideValue", (s) => { return String.Format(s, this.FieldInfo.Name); });
+                throw new BadUsageException("FileHelperMsg_NewLineInsideValue", new List<string>() { this.FieldInfo.Name });
             }
 
             // Add Quotes If:

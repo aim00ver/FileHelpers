@@ -57,7 +57,7 @@ namespace FileHelpers.DataLink
         {
             if (FillRecordCallback == null) {
                 //?FillRecordCallbackIsNull"You can't extract records with a null FillRecordCallback. Check the docs for help."
-                throw new BadUsageException("FileHelperMsg_FillRecordCallbackIsNull", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_FillRecordCallbackIsNull", null);
             }
 
             object res = mRecordInfo.Operations.CreateRecordHandler();
@@ -78,7 +78,7 @@ namespace FileHelpers.DataLink
             if (mSelectSql == null ||
                 mSelectSql == string.Empty) {
                 //?SelectSqlPropIsEmpty"The SelectSql property is empty, please set it before trying to get the records."
-                throw new BadUsageException("FileHelperMsg_SelectSqlPropIsEmpty", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_SelectSqlPropIsEmpty", null);
             }
 
             return mSelectSql;
@@ -108,7 +108,7 @@ namespace FileHelpers.DataLink
         {
             if (mInsertSqlCallback == null) {
                 //?GetInsertSqlCallbackIsNull"You can't insert records with a null GetInsertSqlCallback. Check the docs for help."
-                throw new BadUsageException("FileHelperMsg_GetInsertSqlCallbackIsNull", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_GetInsertSqlCallbackIsNull", null);
             }
 
             return mInsertSqlCallback(record);
@@ -353,7 +353,7 @@ namespace FileHelpers.DataLink
             {
                 if (value < 1)
                     //?ExecuteInBatchSizeIsZero"ExecuteInBatchSize must be >= 1"
-                    throw new BadUsageException("FileHelperMsg_ExecuteInBatchSizeIsZero", FileHelpersException.SimpleMessageFunc);
+                    throw new BadUsageException("FileHelperMsg_ExecuteInBatchSizeIsZero", null);
 
                 mExecuteInBatchSize = value;
             }

@@ -145,17 +145,13 @@ namespace FileHelpers
 
             if (recordAttribute == null) {
                 //throw new BadUsageException(Messages.Errors.ClassWithOutRecordAttribute.ClassName(RecordType.Name).Text);
-                throw new BadUsageException("FileHelperMsg_ClassWithOutRecordAttribute", (s) => {
-                    return StringHelper.ReplaceIgnoringCase(s, "$ClassName$", RecordType.Name);
-                });
+                throw new BadUsageException("FileHelperMsg_ClassWithOutRecordAttribute", new List<string>() { RecordType.Name });
             }
 
 
             if (ReflectionHelper.GetDefaultConstructor(RecordType) == null) {
                 //throw new BadUsageException(Messages.Errors.ClassWithOutDefaultConstructor.ClassName(RecordType.Name).Text);
-                throw new BadUsageException("FileHelperMsg_ClassWithOutDefaultConstructor", (s) => {
-                    return StringHelper.ReplaceIgnoringCase(s, "$ClassName$", RecordType.Name);
-                });
+                throw new BadUsageException("FileHelperMsg_ClassWithOutDefaultConstructor", new List<string>() { RecordType.Name });
             }
             Attributes.WorkWithFirst<IgnoreFirstAttribute>(
                 RecordType,
@@ -213,9 +209,7 @@ namespace FileHelpers
 
             if (FieldCount == 0) {
                 //throw new BadUsageException(Messages.Errors.ClassWithOutFields.ClassName(RecordType.Name).Text);
-                throw new BadUsageException("FileHelperMsg_ClassWithOutFields", (s) => {
-                    return StringHelper.ReplaceIgnoringCase(s, "$ClassName$", RecordType.Name);
-                });
+                throw new BadUsageException("FileHelperMsg_ClassWithOutFields", new List<string>() { RecordType.Name });
             }
              if (recordAttribute is FixedLengthRecordAttribute) {
                 // Defines the initial size of the StringBuilder
@@ -265,9 +259,7 @@ namespace FileHelpers
             if (automaticFields > 0 &&
                 genericFields > 0 && SumOrder(resFields) == 0) {
                 //throw new BadUsageException(Messages.Errors.MixOfStandardAndAutoPropertiesFields.ClassName(resFields[0].FieldInfo.DeclaringType.Name).Text);
-                throw new BadUsageException("FileHelperMsg_MixOfStandardAndAutoPropertiesFields", (s) => {
-                    return StringHelper.ReplaceIgnoringCase(s, "$ClassName$", resFields[0].FieldInfo.DeclaringType.Name);
-                });
+                throw new BadUsageException("FileHelperMsg_MixOfStandardAndAutoPropertiesFields", new List<string>() { resFields[0].FieldInfo.DeclaringType.Name });
             }
             SortFieldsByOrder(resFields);
 
@@ -312,25 +304,19 @@ namespace FileHelpers
                     &&
                     currentField.InNewLine == false) {
                     //throw new BadUsageException(Messages.Errors.ExpectingFieldOptional.FieldName(prevField.FieldInfo.Name).Text);
-                    throw new BadUsageException("FileHelperMsg_ExpectingFieldOptional", (s) => {
-                        return StringHelper.ReplaceIgnoringCase(s, "$FieldName$", prevField.FieldInfo.Name);
-                    });
+                    throw new BadUsageException("FileHelperMsg_ExpectingFieldOptional", new List<string>() { prevField.FieldInfo.Name });
                 }
 
                 // Check for an array array in the middle of a record that is not a fixed length
                 if (prevField.IsArray) {
                     if (prevField.ArrayMinLength == Int32.MinValue) {
                         //throw new BadUsageException(Messages.Errors.MissingFieldArrayLenghtInNotLastField.FieldName(prevField.FieldInfo.Name).Text);
-                        throw new BadUsageException("FileHelperMsg_MissingFieldArrayLenghtInNotLastField", (s) => {
-                            return StringHelper.ReplaceIgnoringCase(s, "$FieldName$", prevField.FieldInfo.Name);
-                        });
+                        throw new BadUsageException("FileHelperMsg_MissingFieldArrayLenghtInNotLastField", new List<string>() { prevField.FieldInfo.Name });
                     }
 
                     if (prevField.ArrayMinLength != prevField.ArrayMaxLength) {
                         //throw new BadUsageException(Messages.Errors.SameMinMaxLengthForArrayNotLastField.FieldName(prevField.FieldInfo.Name).Text);
-                        throw new BadUsageException("FileHelperMsg_SameMinMaxLengthForArrayNotLastField", (s) => {
-                            return StringHelper.ReplaceIgnoringCase(s, "$FieldName$", prevField.FieldInfo.Name);
-                        });
+                        throw new BadUsageException("FileHelperMsg_SameMinMaxLengthForArrayNotLastField", new List<string>() { prevField.FieldInfo.Name });
                     }
                 }
             }
@@ -358,9 +344,7 @@ namespace FileHelpers
                 var fieldWithoutOrder = resFields.Find(x => x.FieldOrder.HasValue == false);
                 if (fieldWithoutOrder != null) {
                     //throw new BadUsageException(Messages.Errors.PartialFieldOrder.FieldName(fieldWithoutOrder.FieldInfo.Name).Text);
-                    throw new BadUsageException("FileHelperMsg_PartialFieldOrder", (s) => {
-                        return StringHelper.ReplaceIgnoringCase(s, "$FieldName$", fieldWithoutOrder.FieldInfo.Name);
-                    });
+                    throw new BadUsageException("FileHelperMsg_PartialFieldOrder", new List<string>() { fieldWithoutOrder.FieldInfo.Name });
                 }
 
                 // No other field should have the same order number
@@ -370,10 +354,7 @@ namespace FileHelpers
                 if (fieldWithSameOrder != null)
                 {
                     //throw new BadUsageException(Messages.Errors.SameFieldOrder.FieldName1(currentField.FieldInfo.Name).FieldName2(fieldWithSameOrder.FieldInfo.Name).Text);
-                    throw new BadUsageException("FileHelperMsg_SameFieldOrder", (s) => {
-                        var tmp = StringHelper.ReplaceIgnoringCase(s, "$FieldName1$", currentField.FieldInfo.Name);
-                        return StringHelper.ReplaceIgnoringCase(tmp, "$FieldName2$", fieldWithSameOrder.FieldInfo.Name);
-                    });
+                    throw new BadUsageException("FileHelperMsg_SameFieldOrder", new List<string>() { currentField.FieldInfo.Name, fieldWithSameOrder.FieldInfo.Name });
                 }
             }
             else {
@@ -385,14 +366,10 @@ namespace FileHelpers
 
                     if (string.IsNullOrEmpty(autoPropertyName))
                         //throw new BadUsageException(Messages.Errors.PartialFieldOrder.FieldName(currentField.FieldInfo.Name).Text);
-                        throw new BadUsageException("FileHelperMsg_PartialFieldOrder", (s) => {
-                            return StringHelper.ReplaceIgnoringCase(s, "$FieldName$", currentField.FieldInfo.Name);
-                        });
+                        throw new BadUsageException("FileHelperMsg_PartialFieldOrder", new List<string>() { currentField.FieldInfo.Name });
                     else
                         //throw new BadUsageException(Messages.Errors.PartialFieldOrderInAutoProperty.PropertyName(autoPropertyName).Text);
-                        throw new BadUsageException("FileHelperMsg_PartialFieldOrderInAutoProperty", (s) => {
-                            return StringHelper.ReplaceIgnoringCase(s, "$PropertyName$", autoPropertyName);
-                        });
+                        throw new BadUsageException("FileHelperMsg_PartialFieldOrderInAutoProperty", new List<string>() { autoPropertyName });
                 }
             }
         }
@@ -423,11 +400,7 @@ namespace FileHelpers
             int res;
             if (!mMapFieldIndex.TryGetValue(fieldName, out res)) {
                 //throw new BadUsageException(Messages.Errors.FieldNotFound.FieldName(fieldName).ClassName(RecordType.Name).Text);
-                throw new BadUsageException("FileHelperMsg_FieldNotFound", (s) => {
-                    var tmp = StringHelper.ReplaceIgnoringCase(s, "$FieldName$", fieldName);
-                    return StringHelper.ReplaceIgnoringCase(tmp, "$ClassName$", RecordType.Name);
-                });
-
+                throw new BadUsageException("FileHelperMsg_FieldNotFound", new List<string> { fieldName, RecordType.Name });
             }
             
             return res;

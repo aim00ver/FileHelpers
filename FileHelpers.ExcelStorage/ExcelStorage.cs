@@ -99,7 +99,7 @@ namespace FileHelpers.DataLink
 			{
 				if (ex.Message.IndexOf("00024500-0000-0000-C000-000000000046") >= 0)
                     //?WrongExcelInstalled"Excel 2000 or newer is not installed in this system."
-                    throw new ExcelBadUsageException("FileHelperMsg_WrongExcelInstalled", FileHelpersException.SimpleMessageFunc);
+                    throw new ExcelBadUsageException("FileHelperMsg_WrongExcelInstalled", null);
 				else
 					throw;
 			}
@@ -163,7 +163,7 @@ namespace FileHelpers.DataLink
 			FileInfo info = new FileInfo(filename);
 			if (info.Exists == false)
                 //?ExcelFileNotFound"Excel File '{0}' not found."
-                throw new FileHelpersException("FileHelperMsg_ExcelFileNotFound", (s) => { return String.Format(s, filename); });
+                throw new FileHelpersException("FileHelperMsg_ExcelFileNotFound", new List<string>() { filename });
 
             this.mBook = this.mApp.Workbooks.Open(info.FullName, (int) UpdateLinks, 
                 mv, mv, mv, mv, mv, mv, mv, mv, mv, mv, mv);
@@ -179,7 +179,7 @@ namespace FileHelpers.DataLink
 				catch
 				{
                     //?XlSheetWasNotFound"The sheet '{0}' was not found in the workbook."
-                    throw new ExcelBadUsageException("FileHelperMsg_XlSheetWasNotFound", (s) => { return String.Format(s, SheetName); });
+                    throw new ExcelBadUsageException("FileHelperMsg_XlSheetWasNotFound", new List<string>() { SheetName });
 				}
 			}
 
@@ -259,7 +259,7 @@ namespace FileHelpers.DataLink
 		{ 
 			if (col < 1 || col > 256)
                 //?ColumnOutOfRange"Column out of range; must be between 1 and 256"
-                throw new ExcelBadUsageException("FileHelperMsg_ColumnOutOfRange", FileHelpersException.SimpleMessageFunc); // Excel limits 
+                throw new ExcelBadUsageException("FileHelperMsg_ColumnOutOfRange", null); // Excel limits 
 			col--; // make 0 origin 
 			// good up to col ZZ 
 			int col2 = (col / 26)-1; 
@@ -345,7 +345,7 @@ namespace FileHelpers.DataLink
 		            {
 		                if (File.Exists(TemplateFile) == false)
                         //?TemplateFileNotFound"Template file not found: '{0}'"
-                        throw new ExcelBadUsageException("FileHelperMsg_TemplateFileNotFound", (s) => { return String.Format(s, TemplateFile); });
+                        throw new ExcelBadUsageException("FileHelperMsg_TemplateFileNotFound", new List<string>() { TemplateFile });
 
 		                if (TemplateFile != FileName)
 		                    File.Copy(TemplateFile, FileName, true);
@@ -384,7 +384,7 @@ namespace FileHelpers.DataLink
 		{
 			if (FileName == String.Empty)
                 //?WorkBookFileNotSpecified"You need to specify the WorkBookFile of the ExcelDataLink."
-                throw new ExcelBadUsageException("FileHelperMsg_WorkBookFileNotSpecified", FileHelpersException.SimpleMessageFunc);
+                throw new ExcelBadUsageException("FileHelperMsg_WorkBookFileNotSpecified", null);
 
 
 			ArrayList res = new ArrayList();

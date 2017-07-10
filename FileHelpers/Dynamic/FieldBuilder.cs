@@ -29,9 +29,7 @@ namespace FileHelpers.Dynamic
 
             if (ValidIdentifierValidator.ValidIdentifier(fieldName) == false) {
                 //throw new FileHelpersException(Messages.Errors.InvalidIdentifier.Identifier(fieldName).Text);
-                throw new FileHelpersException("FileHelperMsg_InvalidIdentifier", (s) => {
-                    return StringHelper.ReplaceIgnoringCase(s, "$Identifier$", fieldName);
-                });
+                throw new FileHelpersException("FileHelperMsg_InvalidIdentifier", new List<string>() { fieldName });
             }
 
             mFieldName = fieldName;
@@ -49,16 +47,12 @@ namespace FileHelpers.Dynamic
 
             if (ValidIdentifierValidator.ValidIdentifier(fieldName) == false) {
                 //throw new FileHelpersException(Messages.Errors.InvalidIdentifier.Identifier(fieldName).Text);
-                throw new FileHelpersException("FileHelperMsg_InvalidIdentifier", (s) => {
-                    return StringHelper.ReplaceIgnoringCase(s, "$Identifier$", fieldName);
-                });
+                throw new FileHelpersException("FileHelperMsg_InvalidIdentifier", new List<string>() { fieldName });
             }
 
             if (ValidIdentifierValidator.ValidIdentifier(fieldType, true) == false) {
                 //throw new FileHelpersException(Messages.Errors.InvalidIdentifier.Identifier(fieldType).Text);
-                throw new FileHelpersException("FileHelperMsg_InvalidIdentifier", (s) => {
-                    return StringHelper.ReplaceIgnoringCase(s, "$Identifier$", fieldType);
-                });
+                throw new FileHelpersException("FileHelperMsg_InvalidIdentifier", new List<string>() { fieldType });
             }
 
             mFieldName = fieldName;

@@ -66,7 +66,7 @@ namespace FileHelpers
         /// <summary>
         /// Where we are processing records from
         /// </summary>
-        internal int mCurrentPos;
+        public int mCurrentPos;
 
         /// <summary>
         /// List of whitespace characters that we want to skip

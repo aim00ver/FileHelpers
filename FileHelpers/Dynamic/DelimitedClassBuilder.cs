@@ -119,7 +119,7 @@ namespace FileHelpers.Dynamic
         {
             if (mDelimiter == string.Empty)
                 //?DelimiterIsEmpty"The Delimiter of the DelimiterClassBuilder can't be null or empty."
-                throw new BadUsageException("FileHelperMsg_DelimiterIsEmpty", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_DelimiterIsEmpty", null);
             else
                 attbs.AddAttribute("DelimitedRecord(" + GetDelimiter(mDelimiter, lang) + ")");
         }

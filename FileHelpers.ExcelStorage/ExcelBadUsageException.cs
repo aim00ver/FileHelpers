@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace FileHelpers.DataLink
 {
@@ -8,8 +9,8 @@ namespace FileHelpers.DataLink
     {
         /// <summary>Creates an instance of an ExcelBadUsageException.</summary>
         /// <param name="message">The exception Message</param>
-        internal ExcelBadUsageException(string messageCode, Func<string, string> messageFunc)
-            : base(messageCode, messageFunc) { }
+        internal ExcelBadUsageException(string messageCode, List<string> messageParams)
+            : base(messageCode, messageParams) { }
 
 //		/// <summary>Creates an instance of an ExcelBadUsageException.</summary>
 //		/// <param name="message">The exception Message</param>

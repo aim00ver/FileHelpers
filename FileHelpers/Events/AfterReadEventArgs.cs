@@ -45,14 +45,17 @@ namespace FileHelpers.Events
             string line,
             bool lineChanged,
             T newRecord,
+            Tuple<int, int>[] valuesPosition,
             int lineNumber)
             : base(engine, line, lineChanged, lineNumber)
         {
             Record = newRecord;
+            ValuesPosition = valuesPosition;
         }
 
         /// <summary>The current record.</summary>
         public T Record { get; set; }
+        public Tuple<int, int>[] ValuesPosition { get; set; }
     }
 
     public class AfterReadWithDetailsEventArgs<T> : AfterReadEventArgs<T> where T : class
@@ -62,13 +65,13 @@ namespace FileHelpers.Events
             bool lineChanged,
             T newRecord,
             int lineNumber,
-            Tuple<int, int> masterLocation,
-            Dictionary<Type, Tuple<int, int>> detailsLocations) : base(engine, line, lineChanged, newRecord, lineNumber)
+            Tuple<int, int>[] masterValuesPosition,
+            Dictionary<Type, List<Tuple<int, int>>> detailsValuesPosition) : base(engine, line, lineChanged, newRecord, masterValuesPosition, lineNumber)
         {
-            MasterLocation = masterLocation;
-            DetailsLocations = detailsLocations;
+            //MasterLocation = masterLocation;
+            DetailsLocations = detailsValuesPosition;
         }
-        public Tuple<int, int> MasterLocation { get; set; }
-        public Dictionary<Type, Tuple<int, int>> DetailsLocations { get; set; }
+        //public Tuple<int, int> MasterLocation { get; set; }
+        public Dictionary<Type, List<Tuple<int, int>>> DetailsLocations { get; set; }
     }
 }

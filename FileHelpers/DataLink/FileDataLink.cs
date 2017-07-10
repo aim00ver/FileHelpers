@@ -28,7 +28,7 @@ namespace FileHelpers.DataLink
                 mHelperEngine = new FileHelperEngine(mProvider.RecordType);
             else
                 //?ProviderIsNull"provider can't be null"
-                throw new FileHelpersException("FileHelperMsg_ProviderIsNull", FileHelpersException.SimpleMessageFunc);
+                throw new FileHelpersException("FileHelperMsg_ProviderIsNull", null);
         }
 
         #endregion

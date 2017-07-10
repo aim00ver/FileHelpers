@@ -226,11 +226,11 @@ namespace FileHelpers.MasterDetail
         {
             if (reader == null)
                 //?StreamReaderIsNull"The reader of the Stream can't be null"
-                throw new FileHelpersException("FileHelperMsg_StreamReaderIsNull", FileHelpersException.SimpleMessageFunc);
+                throw new FileHelpersException("FileHelperMsg_StreamReaderIsNull", null);
 
             if (RecordSelector == null)
                 //?RecordSelectorIsNullOnRead"The RecordSelector can't be null on read operations."
-                throw new BadUsageException("FileHelperMsg_RecordSelectorIsNullOnRead", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_RecordSelectorIsNullOnRead", null);
 
             var recordReader = new NewLineDelimitedRecordReader(reader);
 
@@ -289,9 +289,9 @@ namespace FileHelpers.MasterDetail
                         }
                         catch (Exception ex) {
                             //?SuppliedRecordSelectorFailed"Supplied Record selector failed to process record"
-                            throw new FileHelpersException("FileHelperMsg_SuppliedRecordSelectorFailed", FileHelpersException.SimpleMessageFunc, ex);
+                            throw new FileHelpersException("FileHelperMsg_SuppliedRecordSelectorFailed", null, ex);
                         }
-
+                        Tuple<int, int>[] valuesPosition;
                         switch (action) {
                             case RecordAction.Master:
                                 if (record != null) {
@@ -302,7 +302,7 @@ namespace FileHelpers.MasterDetail
                                 mTotalRecords++;
                                 record = new MasterDetails<TMaster, TDetail>();
                                 tmpDetails.Clear();
-                                var lastMaster = (TMaster) mMasterInfo.Operations.StringToRecord(line, valuesMaster, ErrorManager);
+                                var lastMaster = (TMaster) mMasterInfo.Operations.StringToRecord(line, valuesMaster, ErrorManager, -1, out valuesPosition);
 
                                 if (lastMaster != null)
                                     record.Master = lastMaster;
@@ -310,7 +310,7 @@ namespace FileHelpers.MasterDetail
                                 break;
 
                             case RecordAction.Detail:
-                                var lastChild = (TDetail) RecordInfo.Operations.StringToRecord(line, valuesDetail, ErrorManager);
+                                var lastChild = (TDetail) RecordInfo.Operations.StringToRecord(line, valuesDetail, ErrorManager, -1, out valuesPosition);
 
                                 if (lastChild != null)
                                     tmpDetails.Add(lastChild);
@@ -406,11 +406,11 @@ namespace FileHelpers.MasterDetail
         {
             if (writer == null)
                 //?StreamWriterIsNull"The writer of the Stream can be null"
-                throw new FileHelpersException("FileHelperMsg_StreamWriterIsNull", FileHelpersException.SimpleMessageFunc);
+                throw new FileHelpersException("FileHelperMsg_StreamWriterIsNull", null);
 
             if (records == null)
                 //?RecordsCannotBeNull"The records cannot be null. Try with an empty array."
-                throw new FileHelpersException("FileHelperMsg_RecordsCannotBeNull", FileHelpersException.SimpleMessageFunc);
+                throw new FileHelpersException("FileHelperMsg_RecordsCannotBeNull", null);
             
             ResetFields();
 
@@ -445,7 +445,7 @@ namespace FileHelpers.MasterDetail
                 try {
                     if (rec == null)
                         //?RecordIsNullAtIndex"The record at index {0} is null."
-                        throw new BadUsageException("FileHelperMsg_RecordIsNullAtIndex", (s) => { return String.Format(s, recIndex.ToString()); });
+                        throw new BadUsageException("FileHelperMsg_RecordIsNullAtIndex", new List<string>() { recIndex.ToString() });
 
                     if (MustNotifyProgress) // Avoid object creation
                         OnProgress(new ProgressEventArgs(recIndex + 1, max));

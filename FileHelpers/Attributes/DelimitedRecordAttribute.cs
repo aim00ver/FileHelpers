@@ -21,7 +21,7 @@ namespace FileHelpers
                 this.Separator = delimiter;
             else
                 //?ForbiddenDelimiter"Given delimiter cannot be <> \"\""
-                throw new FileHelpersException("FileHelperMsg_ForbiddenDelimiter", FileHelpersException.SimpleMessageFunc);
+                throw new FileHelpersException("FileHelperMsg_ForbiddenDelimiter", null);
         }
     }
 }

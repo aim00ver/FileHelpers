@@ -76,12 +76,12 @@ namespace FileHelpers.DataLink
                 if (mServerName == null ||
                     mServerName == string.Empty)
                     //?ServerNameIsEmpty"The ServerName can't be null or empty."
-                    throw new BadUsageException("FileHelperMsg_ServerNameIsEmpty", FileHelpersException.SimpleMessageFunc);
+                    throw new BadUsageException("FileHelperMsg_ServerNameIsEmpty", null);
 
                 if (mDatabaseName == null ||
                     mDatabaseName == string.Empty)
                     //?DatabaseNameIsEmpty"The DatabaseName can't be null or empty."
-                    throw new BadUsageException("FileHelperMsg_DatabaseNameIsEmpty", FileHelpersException.SimpleMessageFunc);
+                    throw new BadUsageException("FileHelperMsg_DatabaseNameIsEmpty", null);
 
                 conString = DataBaseHelper.SqlConnectionString(ServerName, DatabaseName, UserName, UserPass);
             }

@@ -21,7 +21,7 @@ namespace FileHelpers
                 this.Length = length;
             else
                 //?ZeroFieldFixedLength"The FieldFixedLength attribute must be > 0"
-                throw new BadUsageException("FileHelperMsg_ZeroFieldFixedLength", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_ZeroFieldFixedLength", null);
         }
     }
 }

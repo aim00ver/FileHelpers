@@ -115,7 +115,7 @@ namespace FileHelpers
             {
                 if (mLastRecordValues == null) {
                     //?NoBeginReadFileCall"You must be reading something to access this property. Try calling BeginReadFile first."
-                    throw new BadUsageException("FileHelperMsg_NoBeginReadFileCall", FileHelpersException.SimpleMessageFunc);
+                    throw new BadUsageException("FileHelperMsg_NoBeginReadFileCall", null);
                 }
 
                 return mLastRecordValues[fieldIndex];
@@ -124,7 +124,7 @@ namespace FileHelpers
             {
                 if (mAsyncWriter == null) {
                     //?NoBeginWriteFileCall"You must be writing something to set a record value. Try calling BeginWriteFile first."
-                    throw new BadUsageException("FileHelperMsg_NoBeginWriteFileCall", FileHelpersException.SimpleMessageFunc);
+                    throw new BadUsageException("FileHelperMsg_NoBeginWriteFileCall", null);
                 }
 
                 if (mLastRecordValues == null)
@@ -133,14 +133,14 @@ namespace FileHelpers
                 if (value == null) {
                     if (RecordInfo.Fields[fieldIndex].FieldType.IsValueType)
                         //?NullAssigned"You can't assign null to a value type."
-                        throw new BadUsageException("FileHelperMsg_NullAssigned", FileHelpersException.SimpleMessageFunc);
+                        throw new BadUsageException("FileHelperMsg_NullAssigned", null);
 
                     mLastRecordValues[fieldIndex] = null;
                 }
                 else {
                     if (!RecordInfo.Fields[fieldIndex].FieldType.IsInstanceOfType(value)) {
                         //?TypeNotExpected"Invalid type: {0}. Expected: {1}"
-                        throw new BadUsageException("FileHelperMsg_TypeNotExpected", (s) => { return String.Format(s, value.GetType().Name, RecordInfo.Fields[fieldIndex].FieldType.Name); });
+                        throw new BadUsageException("FileHelperMsg_TypeNotExpected", new List<string>() { value.GetType().Name, RecordInfo.Fields[fieldIndex].FieldType.Name });
                     }
 
                     mLastRecordValues[fieldIndex] = value;
@@ -158,7 +158,7 @@ namespace FileHelpers
             {
                 if (mLastRecordValues == null) {
                     //?NoBeginReadFileCall"You must be reading something to access this property. Try calling BeginReadFile first."
-                    throw new BadUsageException("FileHelperMsg_NoBeginReadFileCall", FileHelpersException.SimpleMessageFunc);
+                    throw new BadUsageException("FileHelperMsg_NoBeginReadFileCall", null);
                 }
 
                 int index = RecordInfo.GetFieldIndex(fieldName);
@@ -180,11 +180,11 @@ namespace FileHelpers
         {
             if (reader == null)
                 //?TextReaderIsNull"The TextReader can't be null."
-                throw new FileHelpersException("FileHelperMsg_TextReaderIsNull", FileHelpersException.SimpleMessageFunc);
+                throw new FileHelpersException("FileHelperMsg_TextReaderIsNull", null);
 
             if (mAsyncWriter != null)
                 //?ReadWhileWriting"You can't start to read while you are writing."
-                throw new BadUsageException("FileHelperMsg_ReadWhileWriting", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_ReadWhileWriting", null);
 
             var recordReader = new NewLineDelimitedRecordReader(reader);
 
@@ -253,7 +253,7 @@ namespace FileHelpers
         {
             if (mAsyncReader == null)
                 //?ReadNotStarted"Before call ReadNext you must call BeginReadFile or BeginReadStream."
-                throw new BadUsageException("FileHelperMsg_ReadNotStarted", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_ReadNotStarted", null);
 
             ReadNextRecord();
 
@@ -278,7 +278,7 @@ namespace FileHelpers
 
             if (mLastRecordValues == null)
                 mLastRecordValues = new object[RecordInfo.FieldCount];
-
+            
             while (true) {
                 if (currentLine != null) {
                     try {
@@ -308,9 +308,10 @@ namespace FileHelpers
 
 
                         if (skip == false) {
-                            if (RecordInfo.Operations.StringToRecord(mLastRecord, line, mLastRecordValues, ErrorManager)) {
+                            Tuple<int, int>[] valuesPosition;
+                            if (RecordInfo.Operations.StringToRecord(mLastRecord, line, mLastRecordValues, ErrorManager, -1, out valuesPosition)) {
                                 if (MustNotifyRead) // Avoid object creation
-                                    skip = OnAfterReadRecord(currentLine, mLastRecord, e.RecordLineChanged, LineNumber);
+                                    skip = OnAfterReadRecord(currentLine, mLastRecord, valuesPosition, e.RecordLineChanged, LineNumber);
                                 if (skip == false) {
                                     byPass = true;
                                     return;
@@ -378,7 +379,7 @@ namespace FileHelpers
         {
             if (mAsyncReader == null)
                 //?ReadNotStarted"Before call ReadNext you must call BeginReadFile or BeginReadStream."
-                throw new BadUsageException("FileHelperMsg_ReadNotStarted", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_ReadNotStarted", null);
 
             var arr = new List<T>(numberOfRecords);
 
@@ -452,11 +453,11 @@ namespace FileHelpers
         {
             if (writer == null)
                 //?TextWriterIsNull"The TextWriter can't be null."
-                throw new FileHelpersException("FileHelperMsg_TextWriterIsNull", FileHelpersException.SimpleMessageFunc);
+                throw new FileHelpersException("FileHelperMsg_TextWriterIsNull", null);
 
             if (mAsyncReader != null)
                 //?WriteWhileReading"You can't start to write while you are reading."
-                throw new BadUsageException("FileHelperMsg_WriteWhileReading", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_WriteWhileReading", null);
 
 
             State = EngineState.Writing;
@@ -521,7 +522,7 @@ namespace FileHelpers
         {
             if (mAsyncReader != null)
                 //?WriteWhileReading"You can't start to write while you are reading."
-                throw new BadUsageException("FileHelperMsg_WriteWhileReading", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_WriteWhileReading", null);
 
             mAsyncWriter = StreamHelper.CreateFileAppender(fileName, mEncoding, false, true, bufferSize);
             mHeaderText = String.Empty;
@@ -545,15 +546,15 @@ namespace FileHelpers
         {
             if (mAsyncWriter == null)
                 //?WriteNotStarted"Before call WriteNext you must call BeginWriteFile or BeginWriteStream."
-                throw new BadUsageException("FileHelperMsg_WriteNotStarted", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_WriteNotStarted", null);
 
             if (record == null)
                 //?WriteRecordIsNull"The record to write can't be null."
-                throw new BadUsageException("FileHelperMsg_WriteRecordIsNull", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_WriteRecordIsNull", null);
 
             if (RecordType.IsAssignableFrom(record.GetType()) == false)
                 //?WrongRecordType"The record must be of type: {0}"
-                throw new BadUsageException("FileHelperMsg_WrongRecordType", (s) => { return String.Format(s, RecordType.Name); });
+                throw new BadUsageException("FileHelperMsg_WrongRecordType", new List<string>() { RecordType.Name });
 
             WriteRecord(record);
         }
@@ -607,11 +608,11 @@ namespace FileHelpers
         {
             if (mAsyncWriter == null)
                 //?WriteNotStarted"Before call WriteNext you must call BeginWriteFile or BeginWriteStream."
-                throw new BadUsageException("FileHelperMsg_WriteNotStarted", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_WriteNotStarted", null);
 
             if (records == null)
                 //?WriteRecordIsNull"The record to write can't be null."
-                throw new FileHelpersException("FileHelperMsg_WriteRecordIsNull", FileHelpersException.SimpleMessageFunc);
+                throw new FileHelpersException("FileHelperMsg_WriteRecordIsNull", null);
 
             bool first = true;
 
@@ -620,7 +621,7 @@ namespace FileHelpers
                 if (first) {
                     if (RecordType.IsAssignableFrom(rec.GetType()) == false)
                         //?WrongRecordType"The record must be of type: {0}"
-                        throw new BadUsageException("FileHelperMsg_WrongRecordType", (s) => { return String.Format(s, RecordType.Name); });
+                        throw new BadUsageException("FileHelperMsg_WrongRecordType", new List<string>() { RecordType.Name });
                     first = false;
                 }
 
@@ -640,11 +641,11 @@ namespace FileHelpers
         {
             if (mAsyncWriter == null)
                 //?WriteNotStarted"Before call WriteNext you must call BeginWriteFile or BeginWriteStream."
-                throw new BadUsageException("FileHelperMsg_WriteNotStarted", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_WriteNotStarted", null);
 
             if (mLastRecordValues == null) {
                 //?RecordWithoutValues"You must set some values of the record before call this method, or use the overload that has a record as argument."
-                throw new BadUsageException("FileHelperMsg_RecordWithoutValues", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_RecordWithoutValues", null);
             }
 
             string currentLine = null;
@@ -688,7 +689,7 @@ namespace FileHelpers
         {
             if (mAsyncReader == null)
                 //!"You must call BeginRead before use the engine in a for each loop."
-                throw new FileHelpersException("FileHelperMsg_MustCallBeginReadBeforeLoop", FileHelpersException.SimpleMessageFunc);
+                throw new FileHelpersException("FileHelperMsg_MustCallBeginReadBeforeLoop", null);
             return new AsyncEnumerator(this);
         }
 
@@ -704,7 +705,7 @@ namespace FileHelpers
         {
             if (mAsyncReader == null)
                 //!"You must call BeginRead before use the engine in a for each loop."
-                throw new FileHelpersException("FileHelperMsg_MustCallBeginReadBeforeLoop", FileHelpersException.SimpleMessageFunc);
+                throw new FileHelpersException("FileHelperMsg_MustCallBeginReadBeforeLoop", null);
             return new AsyncEnumerator(this);
         }
 

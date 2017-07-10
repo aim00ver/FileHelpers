@@ -73,10 +73,10 @@ namespace FileHelpers
             }
             if (path.Length == 0)
                 //?PathIsEmpty"Empty path"
-                throw new FileHelpersException("FileHelperMsg_PathIsEmpty", FileHelpersException.SimpleMessageFunc);
+                throw new FileHelpersException("FileHelperMsg_PathIsEmpty", null);
             if (bufferSize <= 0)
                 //?BufferSizeIsNonPositive"bufferSize must be positive"
-                throw new FileHelpersException("FileHelperMsg_BufferSizeIsNonPositive", FileHelpersException.SimpleMessageFunc);
+                throw new FileHelpersException("FileHelperMsg_BufferSizeIsNonPositive", null);
             var stream = new FileStream(path,
                 FileMode.Open,
                 FileAccess.Read,

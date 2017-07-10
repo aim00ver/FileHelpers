@@ -27,7 +27,7 @@ namespace FileHelpers.DataLink
                 mExcelStorage = new ExcelStorage(provider.RecordType);
             else
                 //?ProviderIsNull"provider can't be null"
-                throw new FileHelpersException("FileHelperMsg_ProviderIsNull", FileHelpersException.SimpleMessageFunc);
+                throw new FileHelpersException("FileHelperMsg_ProviderIsNull", null);
         }
 
         #endregion

@@ -33,12 +33,12 @@ namespace FileHelpers
 
             if (line.IsEOL()) {
                 //?EmptyStringFound"An empty String found. This can not be parsed like a QuotedString try to use SafeExtractQuotedString"
-                throw new BadUsageException("FileHelperMsg_EmptyStringFound", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_EmptyStringFound", null);
             }
 
             if (line.mLineStr[line.mCurrentPos] != quoteChar)
                 //?StringNotStartsWithQuoteChar"The source string does not begin with the quote char: {0}"
-                throw new BadUsageException("FileHelperMsg_StringNotStartsWithQuoteChar", (s) => { return String.Format(s, quoteChar); });
+                throw new BadUsageException("FileHelperMsg_StringNotStartsWithQuoteChar", new List<string>() { quoteChar.ToString() });
 
             var res = new StringBuilder(32);
 
@@ -78,7 +78,7 @@ namespace FileHelpers
                 else {
                     if (allowMultiline == false) {
                         //?UnclosedQuoteString"The current field has an unclosed quoted string. Complete line: {0}"
-                        throw new BadUsageException("FileHelperMsg_UnclosedQuoteString", (s) => { return String.Format(s, res.ToString()); });
+                        throw new BadUsageException("FileHelperMsg_UnclosedQuoteString", new List<string>() { res.ToString() });
                     }
 
                     line.ReadNextLine();
@@ -88,7 +88,7 @@ namespace FileHelpers
                 }
             }
             //?UnclosedQuoteStringComplete"The current field has an unclosed quoted string. Complete Filed String: {0}"
-            throw new BadUsageException("FileHelperMsg_UnclosedQuoteStringComplete", (s) => { return String.Format(s, res.ToString()); });
+            throw new BadUsageException("FileHelperMsg_UnclosedQuoteStringComplete", new List<string>() { res.ToString() });
         }
 
         #endregion

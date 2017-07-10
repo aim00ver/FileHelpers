@@ -7,7 +7,7 @@ namespace FileHelpers
     /// <summary>Base class for all the library Exceptions.</summary>
     [Serializable]
     public class FileHelpersException : Exception
-    {
+    {/*
         public const string NonLocalizedCode = "FileHelperMsg_NonLocalized";
         public static Func<string, string> SimpleMessageFunc
         {
@@ -15,18 +15,18 @@ namespace FileHelpers
             {
                 return (s) => { return s; };
             }
-        }
+        }*/
            
-        public FileHelpersException(string messageCode, Func<string, string> messageFunc)
+        public FileHelpersException(string messageCode, List<string> messageParams)
             : base(messageCode)
         {
-            MessageFunc = messageFunc;
+            MessageParams = messageParams;
         }
 
-        public FileHelpersException(string messageCode, Func<string, string> messageFunc, Exception ex)
+        public FileHelpersException(string messageCode, List<string> messageParams, Exception ex)
             : base(messageCode, ex)
         {
-            MessageFunc = messageFunc;
+            MessageParams = messageParams;
         }
         /*
         /// <summary>Basic constructor of the exception.</summary>
@@ -53,8 +53,8 @@ namespace FileHelpers
             Column = column;
         }
         */
-        public FileHelpersException(int line, int column, string messageCode, Func<string, string> messageFunc, string fieldName = null)
-            : this(messageCode, messageFunc)
+        public FileHelpersException(int line, int column, string messageCode, List<string> messageParams, string fieldName = null)
+            : this(messageCode, messageParams)
         {
             Line = line;
             Column = column;
@@ -64,6 +64,6 @@ namespace FileHelpers
         public string FieldName { get; set; }
         public int Line { get; set; }
         public int Column { get; set; }
-        public Func<string, string> MessageFunc;
+        public List<string> MessageParams;
     }
 }

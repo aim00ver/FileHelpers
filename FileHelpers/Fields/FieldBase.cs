@@ -256,24 +256,24 @@ namespace FileHelpers
             if (recordAttribute is FixedLengthRecordAttribute &&
                 attributes.Length == 0) {
                 //?NoFieldFixedLengthAttr"The field or property '{0}' must be marked the FieldFixedLength attribute because the record class is marked with FixedLengthRecord."
-                throw new BadUsageException("FileHelperMsg_NoFieldFixedLengthAttr", (s) => { return String.Format(s, memberName); });
+                throw new BadUsageException("FileHelperMsg_NoFieldFixedLengthAttr", new List<string>() { memberName });
             }
 
             if (attributes.Length > 1) {
                 //?FieldFixedLengthAttrConflict"The field or property '{0}' has a FieldFixedLength and a FieldDelimiter attribute."
-                throw new BadUsageException("FileHelperMsg_FieldFixedLengthAttrConflict", (s) => { return String.Format(s, memberName); });
+                throw new BadUsageException("FileHelperMsg_FieldFixedLengthAttrConflict", new List<string>() { memberName });
             }
 
             if (recordAttribute is DelimitedRecordAttribute &&
                 mi.IsDefined(typeof (FieldAlignAttribute), false)) {
                 //?FieldAlignAttrIsWrong"The field or property '{0}' can't be marked with FieldAlign attribute, it is only valid for fixed length records and are used only for write purpose."
-                throw new BadUsageException("FileHelperMsg_FieldAlignAttrIsWrong", (s) => { return String.Format(s, memberName); });
+                throw new BadUsageException("FileHelperMsg_FieldAlignAttrIsWrong", new List<string>() { memberName });
             }
 
             if (fieldType.IsArray == false &&
                 mi.IsDefined(typeof (FieldArrayLengthAttribute), false)) {
                 //?FieldArrayLengthAttrIsWrong"The field or property '{0}' can't be marked with FieldArrayLength attribute is only valid for array fields."
-                throw new BadUsageException("FileHelperMsg_FieldArrayLengthAttrIsWrong", (s) => { return String.Format(s, memberName); });
+                throw new BadUsageException("FileHelperMsg_FieldArrayLengthAttrIsWrong", new List<string>() { memberName });
             }
 
             // PROCESS IN NORMAL CONDITIONS
@@ -284,7 +284,7 @@ namespace FileHelpers
                     // Fixed Field
                     if (recordAttribute is DelimitedRecordAttribute) {
                         //?FieldFixedLengthAttrIsWrong"The field or property '{0}' can't be marked with FieldFixedLength attribute, it is only for the FixedLengthRecords not for delimited ones."
-                        throw new BadUsageException("FileHelperMsg_FieldFixedLengthAttrIsWrong", (s) => { return String.Format(s, memberName); });
+                        throw new BadUsageException("FileHelperMsg_FieldFixedLengthAttrIsWrong", new List<string>() { memberName });
                     }
 
                     var attbFixedLength = (FieldFixedLengthAttribute) fieldAttb;
@@ -297,14 +297,14 @@ namespace FileHelpers
                     // Delimited Field
                     if (recordAttribute is FixedLengthRecordAttribute) {
                         //?FieldDelimiterAttrIsWrong"The field or property '{0}' can't be marked with FieldDelimiter attribute, it is only for DelimitedRecords not for fixed ones."
-                        throw new BadUsageException("FileHelperMsg_FieldDelimiterAttrIsWrong", (s) => { return String.Format(s, memberName); });
+                        throw new BadUsageException("FileHelperMsg_FieldDelimiterAttrIsWrong", new List<string>() { memberName });
                     }
 
                     res = new DelimitedField(fi, ((FieldDelimiterAttribute) fieldAttb).Delimiter);
                 }
                 else {
                     //?CustomAttrNotSupported"Custom field attributes are not currently supported. Unknown attribute: {0} on field: {1}"
-                    throw new BadUsageException("FileHelperMsg_CustomAttrNotSupported", (s) => { return String.Format(s, fieldAttb.GetType().Name, fi.Name); });
+                    throw new BadUsageException("FileHelperMsg_CustomAttrNotSupported", new List<string>() { fieldAttb.GetType().Name, fi.Name });
                 }
             }
             else // attributes.Length == 0
@@ -333,7 +333,7 @@ namespace FileHelpers
                     (x) => {
                         if (res is FixedLengthField) {
                             //?FieldQuotedAttrIsWrong"The field or property '{0}' can't be marked with FieldQuoted attribute, it is only for the delimited records."
-                            throw new BadUsageException("FileHelperMsg_FieldQuotedAttrIsWrong", (s) => { return String.Format(s, memberName); });
+                            throw new BadUsageException("FileHelperMsg_FieldQuotedAttrIsWrong", new List<string>() { memberName });
                         }
 
                         ((DelimitedField) res).QuoteChar =
@@ -380,7 +380,7 @@ namespace FileHelpers
                                 res.ArrayMinLength < 0 ||
                                 res.ArrayMaxLength <= 0) {
                                 //?FieldArrayLengthAttrIsInvalid"The field or property '{0}' has invalid length values in the [FieldArrayLength] attribute."
-                                throw new BadUsageException("FileHelperMsg_FieldArrayLengthAttrIsInvalid", (s) => { return String.Format(s, memberName); });
+                                throw new BadUsageException("FileHelperMsg_FieldArrayLengthAttrIsInvalid", new List<string>() { memberName });
                             }
                         });
                 }
@@ -490,7 +490,7 @@ namespace FileHelpers
                     if (!FieldTypeInternal.IsAssignableFrom(NullValue.GetType())) {
                         //?NullValueWrongType"The NullValue is of type: {0} that is not asignable to the field {1} of type: {2}"
                         throw new BadUsageException("FileHelperMsg_NullValueWrongType", 
-                            (s) => { return String.Format(s, NullValue.GetType().Name, FieldInfo.Name, FieldTypeInternal.Name); },
+                            new List<string>() { NullValue.GetType().Name, FieldInfo.Name, FieldTypeInternal.Name },
                             FieldInfo.Name);
                     }
                 }
@@ -550,86 +550,101 @@ namespace FileHelpers
         /// </summary>
         /// <param name="line">Line handler containing text</param>
         /// <returns></returns>
-        internal object ExtractFieldValue(LineInfo line, ErrorManager ErrorManager)
+        internal object ExtractFieldValue(LineInfo line, ErrorManager ErrorManager, int detailIndex, out Tuple<int, int> valuePosition)
         {
+            valuePosition = new Tuple<int, int>(line.mCurrentPos, 0);
             //-> extract only what I need
-
-            if (InNewLine) {
-                // Any trailing characters, terminate
-                if (line.EmptyFromPos() == false) {
-                    //?TextBeforeNewLine"Text '{0}' found before the new line of the field: {1} (this is not allowed when you use [FieldInNewLine])"
-                    throw new BadUsageException(line, "FileHelperMsg_TextBeforeNewLine", (s) => { return String.Format(s, line.CurrentString, FieldInfo.Name); });
-                }
-
-                line.ReLoad(line.mReader.ReadNextLine());
-
-                if (line.mLineStr == null) {
-                    //?EndOfStreamInsideField"End of stream found parsing the field {0}. Please check the class record."
-                    throw new BadUsageException(line, "FileHelperMsg_EndOfStreamInsideField", (s) => { return String.Format(s, FieldInfo.Name); });
-                }
-            }
-
-            if (IsArray == false) {
-                ExtractedInfo info = ExtractFieldString(line);
-                if (info.mCustomExtractedString == null)
-                    line.mCurrentPos = info.ExtractedTo + 1;
-
-                line.mCurrentPos += CharsToDiscard; //total;
-
-                if (Discarded)
-                    return GetDiscardedNullValue();
-                else
-                    return AssignFromString(info, line, ErrorManager).Value;
-            }
-            else {
-                if (ArrayMinLength <= 0)
-                    ArrayMinLength = 0;
-
-                int i = 0;
-
-                var res = new ArrayList(Math.Max(ArrayMinLength, 10));
-
-                while (line.mCurrentPos - CharsToDiscard < line.mLineStr.Length &&
-                       i < ArrayMaxLength) {
-                    ExtractedInfo info = ExtractFieldString(line);
-                    if (info.mCustomExtractedString == null)
-                        line.mCurrentPos = info.ExtractedTo + 1;
-
-                    line.mCurrentPos += CharsToDiscard;
-
-                    try {
-                        var value = AssignFromString(info, line, ErrorManager);
-
-                        if (value.NullValueUsed &&
-                            i == 0 &&
-                            line.IsEOL())
-                            break;
-
-                        res.Add(value.Value);
+            try
+            {
+                if (InNewLine) {
+                    // Any trailing characters, terminate
+                    if (line.EmptyFromPos() == false) {
+                        //?TextBeforeNewLine"Text '{0}' found before the new line of the field: {1} (this is not allowed when you use [FieldInNewLine])"
+                        throw new BadUsageException(line, "FileHelperMsg_TextBeforeNewLine", new List<string>() { line.CurrentString, FieldInfo.Name });
                     }
-                    catch (NullValueNotFoundException) {
-                        if (i == 0)
-                            break;
+
+                    line.ReLoad(line.mReader.ReadNextLine());
+
+                    if (line.mLineStr == null) {
+                        //?EndOfStreamInsideField"End of stream found parsing the field {0}. Please check the class record."
+                        throw new BadUsageException(line, "FileHelperMsg_EndOfStreamInsideField", new List<string>() { FieldInfo.Name });
+                    }
+                }
+
+                if (IsArray == false) {
+                    if (line.IsEOL())
+                    {
+                        ExtractedInfo info = new ExtractedInfo(line);
+                        return AssignFromString(info, line, ErrorManager, detailIndex).Value;
+                    }
+                    else
+                    {
+                        ExtractedInfo info = ExtractFieldString(line);
+                        if (info.mCustomExtractedString == null)
+                            line.mCurrentPos = info.ExtractedTo + 1;
+
+                        line.mCurrentPos += CharsToDiscard; //total;
+
+                        if (Discarded)
+                            return GetDiscardedNullValue();
                         else
-                            throw;
+                            return AssignFromString(info, line, ErrorManager, detailIndex).Value;
                     }
-                    i++;
                 }
+                else {
+                    if (ArrayMinLength <= 0)
+                        ArrayMinLength = 0;
 
-                if (res.Count < ArrayMinLength) {
-                    //?ArrayLengthLessThanMin"Line: {0} Column: {1} Field: {2}. The array has only {3} values, less than the minimum length of {4}"
-                    throw new FileHelpersException("FileHelperMsg_ArrayLengthLessThanMin", (s) => { return string.Format(s, line.mReader.LineNumber.ToString(), line.mCurrentPos.ToString(), FieldInfo.Name, res.Count, ArrayMinLength); }); 
-                }
-                else if (IsLast && line.IsEOL() == false) {
-                    //?ArrayLengthGreaterThanMin"Line: {0} Column: {1} Field: {2}. The array has more values than the maximum length of {3}"
-                    throw new FileHelpersException("FileHelperMsg_ArrayLengthGreaterThanMin", (s) => { return string.Format(s, line.mReader.LineNumber, line.mCurrentPos, FieldInfo.Name, ArrayMaxLength); });
-                }
+                    int i = 0;
 
-                // TODO:   is there a reason we go through all the array processing then discard it
-                if (Discarded)
-                    return null;
-                else
-                    return res.ToArray(ArrayType);
+                    var res = new ArrayList(Math.Max(ArrayMinLength, 10));
+
+                    while (line.mCurrentPos - CharsToDiscard < line.mLineStr.Length &&
+                           i < ArrayMaxLength) {
+                        ExtractedInfo info = ExtractFieldString(line);
+                        if (info.mCustomExtractedString == null)
+                            line.mCurrentPos = info.ExtractedTo + 1;
+
+                        line.mCurrentPos += CharsToDiscard;
+
+                        try {
+                            var value = AssignFromString(info, line, ErrorManager, detailIndex);
+
+                            if (value.NullValueUsed &&
+                                i == 0 &&
+                                line.IsEOL())
+                                break;
+
+                            res.Add(value.Value);
+                        }
+                        catch (NullValueNotFoundException) {
+                            if (i == 0)
+                                break;
+                            else
+                                throw;
+                        }
+                        i++;
+                    }
+
+                    if (res.Count < ArrayMinLength) {
+                        //?ArrayLengthLessThanMin"Line: {0} Column: {1} Field: {2}. The array has only {3} values, less than the minimum length of {4}"
+                        throw new FileHelpersException("FileHelperMsg_ArrayLengthLessThanMin", new List<string>() { line.mReader.LineNumber.ToString(), line.mCurrentPos.ToString(), FieldInfo.Name, res.Count.ToString(), ArrayMinLength.ToString() });
+                    }
+                    else if (IsLast && line.IsEOL() == false) {
+                        //?ArrayLengthGreaterThanMin"Line: {0} Column: {1} Field: {2}. The array has more values than the maximum length of {3}"
+                        throw new FileHelpersException("FileHelperMsg_ArrayLengthGreaterThanMin", new List<string>() { line.mReader.LineNumber.ToString(), line.mCurrentPos.ToString(), FieldInfo.Name, ArrayMaxLength.ToString() });
+                    }
+
+                    // TODO:   is there a reason we go through all the array processing then discard it
+                    if (Discarded)
+                        return null;
+                    else
+                        return res.ToArray(ArrayType);
+                }
+            }
+            finally
+            {
+                valuePosition = new Tuple<int, int>(valuePosition.Item1, line.mCurrentPos - valuePosition.Item1);
             }
         }
 
@@ -648,7 +663,7 @@ namespace FileHelpers
         /// <param name="fieldString">Information extracted?</param>
         /// <param name="line">Underlying input data</param>
         /// <returns>Object to assign to field</returns>
-        private AssignResult AssignFromString(ExtractedInfo fieldString, LineInfo line, ErrorManager ErrorManager)
+        private AssignResult AssignFromString(ExtractedInfo fieldString, LineInfo line, ErrorManager ErrorManager, int detailIndex)
         {
             object val;
 
@@ -661,7 +676,7 @@ namespace FileHelpers
                     if (IsNotEmpty && String.IsNullOrEmpty(extractedString))
                     {
                         //?ValueNonPopulated"The value is empty and must be populated."
-                        throw new FileHelpersException("FileHelperMsg_ValueNonPopulated", FileHelpersException.SimpleMessageFunc);
+                        throw new FileHelpersException("FileHelperMsg_ValueNonPopulated", null);
                     }
                     else */
                     if (IsStringField)
@@ -670,7 +685,7 @@ namespace FileHelpers
                         {
                             var nullVal = GetNullValue(line);
                             if ((nullVal == null) || (string.IsNullOrEmpty(nullVal.ToString())))
-                                throw new FileHelpersException("FileHelperMsg_ValueNonPopulated", FileHelpersException.SimpleMessageFunc);
+                                throw new FileHelpersException("FileHelperMsg_ValueNonPopulated", null);
                             else
                                 return new AssignResult
                                 {
@@ -689,7 +704,7 @@ namespace FileHelpers
                         {
                             var nullVal = GetNullValue(line);
                             if ((nullVal == null) && (IsNotEmpty))
-                                throw new FileHelpersException("FileHelperMsg_ValueNonPopulated", FileHelpersException.SimpleMessageFunc);
+                                throw new FileHelpersException("FileHelperMsg_ValueNonPopulated", null);
 
                             return new AssignResult
                             {
@@ -709,7 +724,7 @@ namespace FileHelpers
                         {
                             var nullVal = GetNullValue(line);
                             if ((nullVal == null) && (IsNotEmpty))
-                                throw new FileHelpersException("FileHelperMsg_ValueNonPopulated", FileHelpersException.SimpleMessageFunc);
+                                throw new FileHelpersException("FileHelperMsg_ValueNonPopulated", null);
 
                             return new AssignResult
                             {
@@ -761,8 +776,8 @@ namespace FileHelpers
                             FieldInfo.Name,
                             line.mReader.LineNumber,
                             fieldString.ExtractedFrom + 1,
-                            FileHelpersException.NonLocalizedCode,
-                            (s) => { return ex.Message; },
+                            ex.Message,//FileHelpersException.NonLocalizedCode,
+                            null,
                             ex);
                     }
                     else
@@ -774,7 +789,7 @@ namespace FileHelpers
                             fieldString.ExtractedFrom + 1,
                             "FileHelperMsg_ConvertExceptionCustomConverterException",
                             //!"Your custom converter: {0} throws an {1} with the message: {2}"
-                            (s) => { return String.Format(s, this.Converter.GetType().Name, ex.GetType().Name, ex.Message); },
+                            new List<string>() { this.Converter.GetType().Name, ex.GetType().Name, ex.Message },
                             ex);
                     }
                 }
@@ -793,6 +808,7 @@ namespace FileHelpers
                         //mRecordString = extractedString,
                         mRecordString = line.mLineStr,
                         mLineNumber = line.mReader.LineNumber,
+                        mDetailIndex = detailIndex,
                         mStart = fieldString.ExtractedFrom + 1,
                         mLength = fieldString.Length,
                         mFieldName = FieldInfo.Name
@@ -823,7 +839,7 @@ namespace FileHelpers
 
                 default:
                     //?TrimModeIsInvalid"Trim mode invalid in FieldBase.TrimString"
-                    throw new FileHelpersException("FileHelperMsg_TrimModeIsInvalid", (s) => { return s + TrimMode.ToString(); });
+                    throw new FileHelpersException("FileHelperMsg_TrimModeIsInvalid", new List<string>() { TrimMode.ToString() });
             }
         }
 
@@ -841,8 +857,8 @@ namespace FileHelpers
                         return null;
 
                     //?FieldNullValueIsMissing"No value found for the value type field: '{0}' Class: '{1}'. {2}You must use the [FieldNullValue] attribute because this is a value type and can't be null or use a Nullable Type instead of the current type.";
-                    //(s) => { return String.Format(s, FieldInfo.Name, FieldInfo.DeclaringType.Name, Environment.NewLine); }
-                    throw new NullValueNotFoundException(line, "FileHelperMsg_FieldNullValueIsMissing", FileHelpersException.SimpleMessageFunc);
+                    //new List<string>() { FieldInfo.Name, FieldInfo.DeclaringType.Name, Environment.NewLine); }
+                    throw new NullValueNotFoundException(line, "FileHelperMsg_FieldNullValueIsMissing", null);
                 }
                 else
                     return null;
@@ -863,7 +879,7 @@ namespace FileHelpers
                         return null;
 
                     //?ValueIsDiscarded"The field: '{0}' Class: '{1}' is from a value type: {2} and is discarded (null) you must provide a [FieldNullValue] attribute.";
-                    throw new BadUsageException("FileHelperMsg_ValueIsDiscarded", (s) => { return String.Format(s, FieldInfo.Name, FieldInfo.DeclaringType.Name, FieldInfo.FieldType.Name); });
+                    throw new BadUsageException("FileHelperMsg_ValueIsDiscarded", new List<string>() { FieldInfo.Name, FieldInfo.DeclaringType.Name, FieldInfo.FieldType.Name });
                 }
                 else
                     return null;
@@ -890,7 +906,7 @@ namespace FileHelpers
                     if (FieldTypeInternal.IsValueType &&
                         Nullable.GetUnderlyingType(FieldTypeInternal) == null) {
                         //?NullValueFoundNoFieldNullValueAttribute"Null Value found. You must specify a FieldNullValueAttribute in the {0} field of type {1}, because this is a ValueType."
-                        throw new BadUsageException("FileHelperMsg_NullValueFoundNoFieldNullValueAttribute", (s) => { return String.Format(s, FieldInfo.Name, FieldTypeInternal.Name); });
+                        throw new BadUsageException("FileHelperMsg_NullValueFoundNoFieldNullValueAttribute", new List<string>() { FieldInfo.Name, FieldTypeInternal.Name });
                     }
                     else
                         val = null;
@@ -941,7 +957,7 @@ namespace FileHelpers
                 if (fieldValue == null) {
                     if (0 < this.ArrayMinLength) {
                         //?ArrayIsNullMinLen"Field: {0}. The array is null, but the minimum length is {1}"
-                        throw new FileHelpersException("FileHelperMsg_ArrayIsNullMinLen", (s) => { return string.Format(s, FieldInfo.Name, ArrayMinLength); });
+                        throw new FileHelpersException("FileHelperMsg_ArrayIsNullMinLen", new List<string>() { FieldInfo.Name, ArrayMinLength.ToString() });
                     }
 
                     return;
@@ -951,14 +967,14 @@ namespace FileHelpers
 
                 if (array.Count < this.ArrayMinLength) {
                     //?ArrayLenWrongMin"Field: {0}. The array has {1} values, but the minimum length is {2}"
-                    throw new FileHelpersException("FileHelperMsg_ArrayLenWrongMin", (s) => { return string.Format(s, FieldInfo.Name, array.Count, ArrayMinLength); });
+                    throw new FileHelpersException("FileHelperMsg_ArrayLenWrongMin", new List<string>() { FieldInfo.Name, array.Count.ToString(), ArrayMinLength.ToString() });
                 }
 
                 if (array.Count > this.ArrayMaxLength) {
                     //?ArrayLenWrongMax"Field: {0}. The array has {1} values, but the maximum length is {2}"
-                    throw new FileHelpersException("FileHelperMsg_ArrayLenWrongMax", (s) => { return string.Format(s, FieldInfo.Name, array.Count, ArrayMaxLength); });
+                    throw new FileHelpersException("FileHelperMsg_ArrayLenWrongMax", new List<string>() { FieldInfo.Name, array.Count.ToString(), ArrayMaxLength.ToString() });
                 }
-
+                
                 for (int i = 0; i < array.Count; i++) {
                     object val = array[i];
                     CreateFieldString(sb, val, IsLast && i == array.Count - 1);

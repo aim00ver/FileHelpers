@@ -27,13 +27,13 @@ namespace FileHelpers.DataLink
         {
             if (provider1 == null)
                 //?Provider1IsNull"provider 1 can't be null"
-                throw new FileHelpersException("FileHelperMsg_Provider1IsNull", FileHelpersException.SimpleMessageFunc);
+                throw new FileHelpersException("FileHelperMsg_Provider1IsNull", null);
             else
                 mDataStorage1 = provider1;
 
             if (provider2 == null)
                 //?Provider2IsNull"provider 2 can't be null"
-                throw new FileHelpersException("FileHelperMsg_Provider2IsNull", FileHelpersException.SimpleMessageFunc);
+                throw new FileHelpersException("FileHelperMsg_Provider2IsNull", null);
             else
                 mDataStorage2 = provider2;
 
@@ -95,16 +95,16 @@ namespace FileHelpers.DataLink
         {
             if (DataStorage1.RecordType == null)
                 //?DataLink1RecordTypeIsNull"DataLink1 can't have a null RecordType."
-                throw new BadUsageException("FileHelperMsg_DataLink1RecordTypeIsNull", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_DataLink1RecordTypeIsNull", null);
 
             if (DataStorage2.RecordType == null)
                 //?DataLink2RecordTypeIsNull"DataLink2 can't have a null RecordType."
-                throw new BadUsageException("FileHelperMsg_DataLink2RecordTypeIsNull", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_DataLink2RecordTypeIsNull", null);
 
             if (DataStorage1.RecordType != DataStorage2.RecordType)
             {
                 //?DiffRecordTypeUsed"You can only use the same record type"
-                throw new BadUsageException("FileHelperMsg_DiffRecordTypeUsed", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_DiffRecordTypeUsed", null);
             }
         }
 

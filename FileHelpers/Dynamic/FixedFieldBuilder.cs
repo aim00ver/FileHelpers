@@ -70,7 +70,7 @@ namespace FileHelpers.Dynamic
         {
             if (mFieldLength <= 0)
                 //?FieldLengthIsZero"The Length of each field must be greater than 0"
-                throw new BadUsageException("FileHelperMsg_FieldLengthIsZero", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_FieldLengthIsZero", null);
             else
                 attbs.AddAttribute("FieldFixedLength(" + mFieldLength.ToString() + ")");
 

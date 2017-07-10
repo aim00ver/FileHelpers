@@ -92,7 +92,7 @@ namespace FileHelpers.ExcelNPOIStorage
             FileInfo info = new FileInfo(filename);
             if (info.Exists == false)
                 //?ExcelFileNotFound"Excel File '{0}' not found."
-                throw new FileHelpersException("FileHelperMsg_ExcelFileNotFound", (s) => { return String.Format(s, filename); });
+                throw new FileHelpersException("FileHelperMsg_ExcelFileNotFound", new List<string>() { filename });
 
             using (FileStream file = new FileStream(filename, FileMode.Open, FileAccess.Read)) {
                 var extension = Path.GetExtension(filename);
@@ -108,7 +108,7 @@ namespace FileHelpers.ExcelNPOIStorage
                         mSheet = mWorkbook.GetSheet(SheetName);
                         if (mSheet == null) {
                             //?XlSheetWasNotFound"The sheet '{0}' was not found in the workbook."
-                            throw new ExcelBadUsageException("FileHelperMsg_XlSheetWasNotFound", (s) => { return String.Format(s, SheetName); });
+                            throw new ExcelBadUsageException("FileHelperMsg_XlSheetWasNotFound", new List<string>() { SheetName });
                         }
 
                         var sheetIndex = mWorkbook.GetSheetIndex(mSheet);
@@ -116,7 +116,7 @@ namespace FileHelpers.ExcelNPOIStorage
                     }
                     catch {
                         //?XlSheetWasNotFound"The sheet '{0}' was not found in the workbook."
-                        throw new ExcelBadUsageException("FileHelperMsg_XlSheetWasNotFound", (s) => { return String.Format(s, SheetName); });
+                        throw new ExcelBadUsageException("FileHelperMsg_XlSheetWasNotFound", new List<string>() { SheetName });
                     }
                 }
             }
@@ -327,7 +327,7 @@ namespace FileHelpers.ExcelNPOIStorage
                 if (!String.IsNullOrEmpty(TemplateFile)) {
                     if (File.Exists(TemplateFile) == false)
                         //?TemplateFileNotFound"Template file not found: '{0}'"
-                        throw new ExcelBadUsageException("FileHelperMsg_TemplateFileNotFound", (s) => { return String.Format(s, TemplateFile); });
+                        throw new ExcelBadUsageException("FileHelperMsg_TemplateFileNotFound", new List<string>() { TemplateFile });
 
                     if (String.Compare(TemplateFile, FileName, StringComparison.OrdinalIgnoreCase) != 0)
                         File.Copy(TemplateFile, FileName, true);
@@ -365,7 +365,7 @@ namespace FileHelpers.ExcelNPOIStorage
         {
             if (String.IsNullOrEmpty(FileName))
                 //?WorkBookFileNotSpecified"You need to specify the WorkBookFile of the ExcelDataLink."
-                throw new ExcelBadUsageException("FileHelperMsg_WorkBookFileNotSpecified", FileHelpersException.SimpleMessageFunc);
+                throw new ExcelBadUsageException("FileHelperMsg_WorkBookFileNotSpecified", null);
 
             var res = new ArrayList();
 

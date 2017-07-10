@@ -75,7 +75,7 @@ namespace FileHelpers
         {
             if (quoteChar == '\0')
                 //?QuotedNullChar"You can't use the null char (\\0) as quoted."
-                throw new BadUsageException("FileHelperMsg_QuotedNullChar", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_QuotedNullChar", null);
 
             QuoteChar = quoteChar;
             QuoteMode = mode;

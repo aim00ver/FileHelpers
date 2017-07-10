@@ -179,7 +179,7 @@ namespace FileHelpers
 
             if (reader == null)
                 //?StreamReaderIsNull"The reader of the Stream can't be null"
-                throw new FileHelpersException("FileHelperMsg_StreamReaderIsNull", FileHelpersException.SimpleMessageFunc);
+                throw new FileHelpersException("FileHelperMsg_StreamReaderIsNull", null);
             var recordReader = new NewLineDelimitedRecordReader(reader);
 
             ResetFields();
@@ -260,11 +260,13 @@ namespace FileHelpers
                         }
 
 
-                        if (skip == false) {
-                            if (RecordInfo.Operations.StringToRecord(record, line, values, ErrorManager)) {
-
+                        if (skip == false)
+                        {
+                            Tuple<int, int>[] valuesPosition;
+                            if (RecordInfo.Operations.StringToRecord(record, line, values, ErrorManager, -1, out valuesPosition))
+                            {
                                 if (MustNotifyRead) // Avoid object creation
-                                    skip = OnAfterReadRecord(currentLine, record, e.RecordLineChanged, LineNumber);
+                                    skip = OnAfterReadRecord(currentLine, record, valuesPosition, e.RecordLineChanged, LineNumber);
 
                                 if (skip == false) {
 
@@ -434,11 +436,11 @@ namespace FileHelpers
         {
             if (writer == null)
                 //?StreamWriterIsNull"The writer of the Stream can be null"
-                throw new FileHelpersException("FileHelperMsg_StreamWriterIsNull", FileHelpersException.SimpleMessageFunc);
+                throw new FileHelpersException("FileHelperMsg_StreamWriterIsNull", null);
 
             if (records == null)
                 //?UseEmptyArray"The records can be null. Try with an empty array."
-                throw new FileHelpersException("FileHelperMsg_UseEmptyArray", FileHelpersException.SimpleMessageFunc);
+                throw new FileHelpersException("FileHelperMsg_UseEmptyArray", null);
 
 
             ResetFields();
@@ -477,13 +479,13 @@ namespace FileHelpers
                 try {
                     if (rec == null)
                         //?RecordIsNullAtIndex"The record at index {0} is null."
-                        throw new BadUsageException("FileHelperMsg_RecordIsNullAtIndex", (s) => { return String.Format(s, recIndex); });
+                        throw new BadUsageException("FileHelperMsg_RecordIsNullAtIndex", new List<string>() { recIndex.ToString() });
 
                     if (first) {
                         first = false;
                         if (RecordInfo.RecordType.IsInstanceOfType(rec) == false) {
                             //?RecordTypeMismatch"This engine works with record of type {0} and you use records of type {1}" 
-                            throw new BadUsageException("FileHelperMsg_RecordTypeMismatch", (s) => { return String.Format(s, RecordInfo.RecordType.Name, rec.GetType().Name); });
+                            throw new BadUsageException("FileHelperMsg_RecordTypeMismatch", new List<string>() { RecordInfo.RecordType.Name, rec.GetType().Name });
                         }
                     }
 

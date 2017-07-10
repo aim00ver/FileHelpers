@@ -18,7 +18,7 @@ namespace FileHelpers
         {
             if (string.IsNullOrEmpty(val))
                 //?ValueNullOrEmpty"Value can't be null or empty"
-                throw new FileHelpersException("FileHelperMsg_ValueNullOrEmpty", FileHelpersException.SimpleMessageFunc);
+                throw new FileHelpersException("FileHelperMsg_ValueNullOrEmpty", null);
         }
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace FileHelpers
         {
             if (string.IsNullOrEmpty(param))
                 //?NeitherNullOrEmpty"{0} can't be neither null nor empty"
-                throw new FileHelpersException("FileHelperMsg_NeitherNullOrEmpty", (s) => { return String.Format(s, paramName); });
+                throw new FileHelpersException("FileHelperMsg_NeitherNullOrEmpty", new List<string>() { paramName });
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace FileHelpers
         {
             if (param == null)
                 //?CantBeNull"{0} can't be null"
-                throw new FileHelpersException("FileHelperMsg_CantBeNull", (s) => { return String.Format(s, paramName); });
+                throw new FileHelpersException("FileHelperMsg_CantBeNull", new List<string>() { paramName });
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace FileHelpers
         {
             if (param1 == param2) {
                 //?CantBeSame"{0} can't be the same as {1}"
-                throw new FileHelpersException("FileHelperMsg_CantBeSame", (s) => { return String.Format(s, param1Name, param2Name); });
+                throw new FileHelpersException("FileHelperMsg_CantBeSame", new List<string>() { param1Name, param2Name });
             }
         }
 
@@ -68,7 +68,7 @@ namespace FileHelpers
         {
             if (val < 0)
                 //?ValueMustBeGreater"The value must be greater than or equal to 0."
-                throw new FileHelpersException("FileHelperMsg_ValueMustBeGreater", FileHelpersException.SimpleMessageFunc);
+                throw new FileHelpersException("FileHelperMsg_ValueMustBeGreater", null);
         }
     }
 }

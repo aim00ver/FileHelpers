@@ -43,13 +43,11 @@ namespace FileHelpers
         internal EngineBase(Type recordType, Encoding encoding)
         {
             if (recordType == null)
-                throw new BadUsageException("FileHelperMsg_NullRecordClass", FileHelpersException.SimpleMessageFunc);
+                throw new BadUsageException("FileHelperMsg_NullRecordClass", null);
 
             if (recordType.IsValueType) {
                 //throw new BadUsageException(Messages.Errors.StructRecordClass.RecordType(recordType.Name).Text);
-                throw new BadUsageException("FileHelperMsg_StructRecordClass", (s) => {
-                    return StringHelper.ReplaceIgnoringCase(s, "$RecordType$", recordType.Name);
-                });
+                throw new BadUsageException("FileHelperMsg_StructRecordClass", new List<string>() { recordType.Name });
             }
 
             mRecordType = recordType;

@@ -116,9 +116,9 @@ namespace FileHelpers
         /// <param name="lineChanged">Has the line been updated so that the engine switches to this version</param>
         /// <param name="lineNumber">Number of line in file</param>
         /// <returns>true if record to be skipped</returns>
-        protected bool OnAfterReadRecord(string line, T record, bool lineChanged, int lineNumber)
+        protected bool OnAfterReadRecord(string line, T record, Tuple<int, int>[] valuesPosition, bool lineChanged, int lineNumber)
         {
-            var e = new AfterReadEventArgs<T>(this, line, lineChanged, record, lineNumber);
+            var e = new AfterReadEventArgs<T>(this, line, lineChanged, record, valuesPosition, lineNumber);
 
             if (RecordInfo.NotifyRead)
                 ((INotifyRead) record).AfterRead(e);
@@ -130,9 +130,9 @@ namespace FileHelpers
         }
 
         protected void OnAfterReadRecordWithDetails(string line, T record, bool lineChanged, int lineNumber,
-            Tuple<int, int> masterLocation, Dictionary<Type, Tuple<int, int>> detailsLocations)
+            Tuple<int, int>[] masterValuesPosition, Dictionary<Type, List<Tuple<int, int>>> detailsValuesPosition)
         {
-            var e = new AfterReadWithDetailsEventArgs<T>(this, line, lineChanged, record, lineNumber, masterLocation, detailsLocations);
+            var e = new AfterReadWithDetailsEventArgs<T>(this, line, lineChanged, record, lineNumber, masterValuesPosition, detailsValuesPosition);
             if (AfterReadRecordWithDetails != null)
                 AfterReadRecordWithDetails(this, e);
         }
