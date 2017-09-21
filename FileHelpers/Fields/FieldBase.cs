@@ -693,6 +693,8 @@ namespace FileHelpers
                                     NullValueUsed = true
                                 };
                         }
+                        else if (this.Converter != null)
+                            val = this.Converter.StringToField(TrimString(extractedString));
                         else
                             val = TrimString(extractedString);
                     }
