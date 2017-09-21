@@ -121,6 +121,10 @@ namespace FileHelpers
         /// <para>   "B" ->  {xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx} </para>
         /// <para>   "P" ->  (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx) </para>
         /// </summary>
-        Guid
+        Guid,
+        /// <summary>
+        /// String of comma-separated values
+        /// </summary>
+        StringList
     }
 }

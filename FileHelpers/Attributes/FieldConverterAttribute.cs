@@ -112,6 +112,9 @@ namespace FileHelpers
                 case ConverterKind.Guid:
                     convType = typeof (ConvertHelpers.GuidConverter);
                     break;
+                case ConverterKind.StringList:
+                    convType = typeof(ConvertHelpers.StringListConverter);
+                    break;
                 default:
                     //?ConverterNotFound"Converter '{0}' not found, you must specify a valid converter."
                     throw new BadUsageException("FileHelperMsg_ConverterNotFound", new List<string>() { converter.ToString() });
@@ -290,6 +293,9 @@ namespace FileHelpers
                     break;
                 case ConverterKind.PercentDouble:
                     valid = typeof (double) == fieldType;
+                    break;
+                case ConverterKind.StringList:
+                    valid = typeof(IEnumerable<string>) == fieldType;
                     break;
             }
 

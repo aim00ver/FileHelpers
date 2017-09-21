@@ -964,6 +964,46 @@ namespace FileHelpers
         #region "  GUID, Char, String Converters  "
 
         #region "  Convert Classes  "
+        internal sealed class StringListConverter : ConverterBase
+        {
+
+            private readonly string mDelimiter;
+
+            public StringListConverter()
+                : this(",") 
+            { }
+            public StringListConverter(string delimiter)
+            {
+                if (String.IsNullOrEmpty(delimiter))
+                    delimiter = ",";
+
+                mDelimiter = delimiter;
+            }
+
+            public override object StringToField(string from)
+            {
+                if (String.IsNullOrEmpty(from))
+                    return new List<string>();
+
+                try
+                {
+                    return from.Split(new string[] { mDelimiter }, StringSplitOptions.RemoveEmptyEntries);
+                }
+                catch
+                {
+                    throw new ConvertException(from, typeof(List<string>));
+                }
+            }
+
+           
+            public override string FieldToString(object from)
+            {
+                if (from == null)
+                    return String.Empty;
+                return string.Join(mDelimiter, (List<string>)from);
+            }
+        }
+
 
         /// <summary>
         /// Allow characters to be converted to upper and lower case automatically.
