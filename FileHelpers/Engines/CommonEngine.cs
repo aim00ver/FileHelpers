@@ -5,6 +5,7 @@ using System.Data;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using FileHelpers.Helpers;
 using FileHelpers.Options;
 
 namespace FileHelpers
@@ -68,7 +69,9 @@ namespace FileHelpers
         public static DataTable ReadFileAsDT(Type recordClass, string fileName, int maxRecords)
         {
             var engine = new FileHelperEngine(recordClass);
+#pragma warning disable 618
             return engine.ReadFileAsDT(fileName, maxRecords);
+#pragma warning restore 618
         }
 
         /// <summary>
@@ -333,7 +336,7 @@ namespace FileHelpers
         /// <summary>
         /// Compare one field to another
         /// </summary>
-        internal class FieldComparer : IComparer
+        private class FieldComparer : IComparer
         {
             private readonly FieldInfo mFieldInfo;
             private readonly int mAscending;
@@ -361,8 +364,6 @@ namespace FileHelpers
 				var xv = mFieldInfo.GetValue(x) as IComparable;
 				return xv.CompareTo(mFieldInfo.GetValue(y)) * mAscending;
             }
-
-            //private GetFieldValueCallback mGetFieldValueHandler;
         }
 
         #endregion
@@ -504,8 +505,10 @@ namespace FileHelpers
         {
             var engine = new FileHelperEngine(recordType);
 
+#pragma warning disable 618
             var list = engine.ReadFileAsList(file1);
             list.AddRange(engine.ReadFileAsList(file2));
+#pragma warning restore 618
 
             var res = list.ToArray();
             list = null; // <- better performance (memory)
@@ -530,8 +533,10 @@ namespace FileHelpers
         {
             var engine = new FileHelperEngine(recordType);
 
+#pragma warning disable 618
             var list = engine.ReadFileAsList(file1);
             list.AddRange(engine.ReadFileAsList(file2));
+#pragma warning restore 618
 
             var res = list.ToArray();
             list = null; // <- better performance (memory)
@@ -657,86 +662,6 @@ namespace FileHelpers
 
         #endregion
 
-        /// <summary>
-        /// Shortcut method to read the first n lines of a text file.
-        /// </summary>
-        /// <param name="file">The file name</param>
-        /// <param name="lines">The number of lines to read.</param>
-        /// <returns>The first n lines of the file.</returns>
-        public static string RawReadFirstLines(string file, int lines)
-        {
-            var sb = new StringBuilder(Math.Min(lines*50, 10000));
-
-            var reader = new StreamReader(file);
-
-            for (int i = 0; i < lines; i++) {
-                string line = reader.ReadLine();
-                if (line == null)
-                    break;
-                else
-                    sb.Append(line + StringHelper.NewLine);
-            }
-            reader.Close();
-
-            return sb.ToString();
-        }
-
-        /// <summary>
-        /// Shortcut method to read the first n lines of a text file as array.
-        /// </summary>
-        /// <param name="file">The file name</param>
-        /// <param name="lines">The number of lines to read.</param>
-        /// <returns>The first n lines of the file.</returns>
-        public static string[] RawReadFirstLinesArray(string file, int lines)
-        {
-            return RawReadFirstLinesArray(file, lines, Encoding.Default);
-        }
-
-        /// <summary>
-        /// Shortcut method to read the first n lines of a text file as array.
-        /// </summary>
-        /// <param name="file">The file name</param>
-        /// <param name="lines">The number of lines to read.</param>
-        /// <param name="encoding">The Encoding used to read the file</param>
-        /// <returns>The first n lines of the file.</returns>
-        public static string[] RawReadFirstLinesArray(string file, int lines, Encoding encoding)
-        {
-            var res = new List<string>(lines);
-            using (var reader = new StreamReader(file, encoding)) {
-                for (int i = 0; i < lines; i++) {
-                    string line = reader.ReadLine();
-                    if (line == null)
-                        break;
-                    else
-                        res.Add(line);
-                }
-            }
-
-            return res.ToArray();
-        }
-
-        /// <summary>
-        /// Shortcut method to read the first n lines of a text file as array.
-        /// </summary>
-        /// <param name="stream">The text reader name</param>
-        /// <param name="lines">The number of lines to read.</param>
-        /// <param name="encoding">The Encoding used to read the file</param>
-        /// <returns>The first n lines of the file.</returns>
-        public static string[] RawReadFirstLinesArray(TextReader stream, int lines, Encoding encoding)
-        {
-            var res = new List<string>(lines);
-                for (int i = 0; i < lines; i++)
-                {
-                    string line = stream.ReadLine();
-                    if (line == null)
-                        break;
-                    else
-                        res.Add(line);
-                }
-
-            return res.ToArray();
-        }
-
         #region "  ReadCSV  "
 
         /// <summary>
@@ -772,7 +697,7 @@ namespace FileHelpers
         /// <returns>An enumeration of <see cref="RecordIndexer"/></returns>
         public static IEnumerable<RecordIndexer> ReadCsv(string filename, char delimiter, int headerLines)
         {
-            return ReadCsv(filename, delimiter, headerLines, Encoding.Default);
+            return ReadCsv(filename, delimiter, headerLines, Encoding.GetEncoding(0));
         }
 
         /// <summary>

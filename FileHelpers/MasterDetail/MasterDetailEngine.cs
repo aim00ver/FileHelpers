@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using FileHelpers.Events;
+using FileHelpers.Helpers;
 using FileHelpers.Options;
 
 namespace FileHelpers.MasterDetail
@@ -65,7 +66,7 @@ namespace FileHelpers.MasterDetail
             : base(detailType)
         {
             mMasterType = masterType;
-            mMasterInfo = FileHelpers.RecordInfo.Resolve(mMasterType); // Container.Resolve<IRecordInfo>(mMasterType);
+            mMasterInfo = FileHelpers.RecordInfo.Resolve(mMasterType);
             MasterOptions = CreateRecordOptionsCore(mMasterInfo);
             mRecordSelector = recordSelector;
         }
@@ -118,7 +119,8 @@ namespace FileHelpers.MasterDetail
                 if (mIgnoreEmpty && recordString == string.Empty)
                     return RecordAction.Skip;
 
-                switch (mAction) {
+                switch (mAction)
+                {
                     case CommonSelector.DetailIfContains:
                         if (recordString.IndexOf(mSelector) >= 0)
                             return RecordAction.Detail;
@@ -208,7 +210,8 @@ namespace FileHelpers.MasterDetail
         /// <include file='MasterDetailEngine.docs.xml' path='doc/ReadFile/*'/>
         public MasterDetails<TMaster, TDetail>[] ReadFile(string fileName)
         {
-            using (var fs = new StreamReader(fileName, mEncoding, true, DefaultReadBufferSize)) {
+            using (var fs = new StreamReader(fileName, mEncoding, true, DefaultReadBufferSize))
+            {
                 MasterDetails<TMaster, TDetail>[] tempRes;
                 tempRes = ReadStream(fs);
                 fs.Close();
@@ -235,12 +238,13 @@ namespace FileHelpers.MasterDetail
             var recordReader = new NewLineDelimitedRecordReader(reader);
 
             ResetFields();
-            mHeaderText = String.Empty;
+            HeaderText = String.Empty;
             mFooterText = String.Empty;
 
             var resArray = new ArrayList();
 
-            using (var freader = new ForwardReader(recordReader, mMasterInfo.IgnoreLast)) {
+            using (var freader = new ForwardReader(recordReader, mMasterInfo.IgnoreLast))
+            {
                 freader.DiscardForward = true;
 
                 mLineNumber = 1;
@@ -253,9 +257,11 @@ namespace FileHelpers.MasterDetail
 
                 int currentRecord = 0;
 
-                if (mMasterInfo.IgnoreFirst > 0) {
-                    for (int i = 0; i < mMasterInfo.IgnoreFirst && currentLine != null; i++) {
-                        mHeaderText += currentLine + StringHelper.NewLine;
+                if (mMasterInfo.IgnoreFirst > 0) 
+                {
+                    for (int i = 0; i < mMasterInfo.IgnoreFirst && currentLine != null; i++) 
+                    {
+                        HeaderText += currentLine + StringHelper.NewLine;
                         currentLine = freader.ReadNextLine();
                         mLineNumber++;
                     }
@@ -267,7 +273,8 @@ namespace FileHelpers.MasterDetail
                 MasterDetails<TMaster, TDetail> record = null;
                 var tmpDetails = new ArrayList();
 
-                var line = new LineInfo(currentLine) {
+                var line = new LineInfo(currentLine)
+                {
                     mReader = freader
                 };
 
@@ -275,8 +282,10 @@ namespace FileHelpers.MasterDetail
                 var valuesMaster = new object[mMasterInfo.FieldCount];
                 var valuesDetail = new object[RecordInfo.FieldCount];
 
-                while (currentLine != null) {
-                    try {
+                while (currentLine != null)
+                {
+                    try
+                    {
                         currentRecord++;
 
                         line.ReLoad(currentLine);
@@ -284,17 +293,21 @@ namespace FileHelpers.MasterDetail
                         if (MustNotifyProgress) // Avoid object creation
                             OnProgress(new ProgressEventArgs(currentRecord, -1));
                         var action = RecordAction.Skip;
-                        try {
+                        try
+                        {
                             action = RecordSelector(currentLine);
                         }
-                        catch (Exception ex) {
+                        catch (Exception ex) 
+                        {
                             //?SuppliedRecordSelectorFailed"Supplied Record selector failed to process record"
                             throw new FileHelpersException("FileHelperMsg_SuppliedRecordSelectorFailed", null, ex);
                         }
                         Tuple<int, int>[] valuesPosition;
-                        switch (action) {
+                        switch (action) 
+                        {
                             case RecordAction.Master:
-                                if (record != null) {
+                                if (record != null) 
+                                {
                                     record.Details = (TDetail[]) tmpDetails.ToArray(typeof (TDetail));
                                     resArray.Add(record);
                                 }
@@ -320,27 +333,31 @@ namespace FileHelpers.MasterDetail
                                 break;
                         }
                     }
-                    catch (Exception ex) {
-                        switch (mErrorManager.ErrorMode) {
+                    catch (Exception ex)
+                    {
+                        switch (mErrorManager.ErrorMode)
+                        {
                             case ErrorMode.ThrowException:
                                 byPass = true;
                                 throw;
                             case ErrorMode.IgnoreAndContinue:
                                 break;
                             case ErrorMode.SaveAndContinue:
-                                var err = new ErrorInfo {
+                                var err = new ErrorInfo
+                                {
                                     mLineNumber = mLineNumber,
                                     mExceptionInfo = ex,
-                                    mRecordString = completeLine
+                                    mRecordString = completeLine,
+                                    mRecordTypeName = RecordInfo.RecordType.Name
                                 };
-                                //							err.mColumnNumber = mColumnNum;
-
                                 mErrorManager.AddError(err);
                                 break;
                         }
                     }
-                    finally {
-                        if (byPass == false) {
+                    finally
+                    {
+                        if (byPass == false)
+                        {
                             currentLine = freader.ReadNextLine();
                             completeLine = currentLine;
                             mLineNumber = freader.LineNumber;
@@ -348,7 +365,8 @@ namespace FileHelpers.MasterDetail
                     }
                 }
 
-                if (record != null) {
+                if (record != null)
+                {
                     record.Details = (TDetail[]) tmpDetails.ToArray(typeof (TDetail));
                     resArray.Add(record);
                 }
@@ -385,7 +403,8 @@ namespace FileHelpers.MasterDetail
         /// <include file='MasterDetailEngine.docs.xml' path='doc/WriteFile2/*'/>
         public void WriteFile(string fileName, IEnumerable<MasterDetails<TMaster, TDetail>> records, int maxRecords)
         {
-            using (var fs = new StreamWriter(fileName, false, mEncoding, DefaultWriteBufferSize)) {
+            using (var fs = new StreamWriter(fileName, false, mEncoding, DefaultWriteBufferSize))
+            {
                 WriteStream(fs, records, maxRecords);
                 fs.Close();
             }
@@ -414,18 +433,15 @@ namespace FileHelpers.MasterDetail
             
             ResetFields();
 
-            if (!string.IsNullOrEmpty(mHeaderText)) {
-                if (mHeaderText.EndsWith(StringHelper.NewLine))
-                    writer.Write(mHeaderText);
-                else
-                    writer.WriteLine(mHeaderText);
-            }
+            writer.NewLine = NewLineForWrite;
 
+            WriteHeader(writer);
 
             string currentLine = null;
 
             int max = maxRecords;
-            if (records is IList) {
+            if (records is IList) 
+            {
                 max = Math.Min(max < 0
                     ? int.MaxValue
                     : max,
@@ -442,7 +458,8 @@ namespace FileHelpers.MasterDetail
                 if (recIndex == maxRecords)
                     break;
 
-                try {
+                try
+                {
                     if (rec == null)
                         //?RecordIsNullAtIndex"The record at index {0} is null."
                         throw new BadUsageException("FileHelperMsg_RecordIsNullAtIndex", new List<string>() { recIndex.ToString() });
@@ -453,26 +470,31 @@ namespace FileHelpers.MasterDetail
                     currentLine = mMasterInfo.Operations.RecordToString(rec.Master);
                     writer.WriteLine(currentLine);
 
-                    if (rec.Details != null) {
-                        for (int d = 0; d < rec.Details.Length; d++) {
+                    if (rec.Details != null)
+                    {
+                        for (int d = 0; d < rec.Details.Length; d++)
+                        {
                             currentLine = RecordInfo.Operations.RecordToString(rec.Details[d]);
                             writer.WriteLine(currentLine);
                         }
                     }
                 }
-                catch (Exception ex) {
-                    switch (mErrorManager.ErrorMode) {
+                catch (Exception ex)
+                {
+                    switch (mErrorManager.ErrorMode)
+                    {
                         case ErrorMode.ThrowException:
                             throw;
                         case ErrorMode.IgnoreAndContinue:
                             break;
                         case ErrorMode.SaveAndContinue:
-                            var err = new ErrorInfo {
+                            var err = new ErrorInfo
+                            {
                                 mLineNumber = mLineNumber,
                                 mExceptionInfo = ex,
-                                mRecordString = currentLine
+                                mRecordString = currentLine,
+                                mRecordTypeName = RecordInfo.RecordType.Name
                             };
-                            //							err.mColumnNumber = mColumnNum;
                             mErrorManager.AddError(err);
                             break;
                     }
@@ -481,12 +503,7 @@ namespace FileHelpers.MasterDetail
 
             mTotalRecords = recIndex;
 
-            if (!string.IsNullOrEmpty(mFooterText)) {
-                if (mFooterText.EndsWith(StringHelper.NewLine))
-                    writer.Write(mFooterText);
-                else
-                    writer.WriteLine(mFooterText);
-            }
+            WriteFooter(writer);
         }
 
         #endregion
@@ -528,8 +545,9 @@ namespace FileHelpers.MasterDetail
                     mEncoding,
                     true,
                     false,
-                    DefaultWriteBufferSize)) {
-                mHeaderText = String.Empty;
+                    DefaultWriteBufferSize))
+            {
+                HeaderText = String.Empty;
                 mFooterText = String.Empty;
 
                 WriteStream(writer, records);

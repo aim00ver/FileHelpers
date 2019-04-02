@@ -17,7 +17,7 @@ namespace FileHelpers.Dynamic
         /// <param name="message">Message for the error</param>
         /// <param name="sourceCode">Source code reference???</param>
         /// <param name="errors">Errors from compiler</param>
-        internal DynamicCompilationException(string messageCode, List<string> messageParams, string sourceCode, CompilerErrorCollection errors)
+        internal DynamicCompilationException(string messageCode, List<string> messageParams, string sourceCode, CompilerErrorCollection errors)//TODO: CompilerErrorCollection not supported by standard 2.0
             : base(messageCode, messageParams)
         {
             mSourceCode = sourceCode;

@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Xml;
 
@@ -109,10 +107,10 @@ namespace FileHelpers.Dynamic
         /// <param name="writer"></param>
         internal override void WriteExtraElements(XmlHelper writer)
         {
-            writer.WriteElement("FieldQuoted", this.FieldQuoted);
-            writer.WriteElement("QuoteChar", this.QuoteChar.ToString(), "\"");
-            writer.WriteElement("QuoteMode", this.QuoteMode.ToString(), "OptionalForRead");
-            writer.WriteElement("QuoteMultiline", this.QuoteMultiline.ToString(), "AllowForRead");
+            writer.WriteElement("FieldQuoted", FieldQuoted);
+            writer.WriteElement("QuoteChar", QuoteChar.ToString(), "\"");
+            writer.WriteElement("QuoteMode", QuoteMode.ToString(), "OptionalForRead");
+            writer.WriteElement("QuoteMultiline", QuoteMultiline.ToString(), "AllowForRead");
         }
 
         /// <summary>

@@ -6,7 +6,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using FileHelpers.Events;
+using FileHelpers.Helpers;
 using FileHelpers.Options;
+using FileHelpers.Streams;
 
 namespace FileHelpers.MasterDetail
 {
@@ -186,7 +188,7 @@ namespace FileHelpers.MasterDetail
             }
 
             ResetFields();
-            mHeaderText = String.Empty;
+            HeaderText = String.Empty;
             mFooterText = String.Empty;
 
             var resArray = new List<MasterMultiDetails>();
@@ -209,7 +211,7 @@ namespace FileHelpers.MasterDetail
                 {
                     for (int i = 0; i < mMultiRecordInfo[0].IgnoreFirst && currentLine != null; i++)
                     {
-                        mHeaderText += currentLine + StringHelper.NewLine;
+                        HeaderText += currentLine + StringHelper.NewLine;
                         currentLine = freader.ReadNextLine();
                         mLineNumber++;
                     }
@@ -480,13 +482,7 @@ namespace FileHelpers.MasterDetail
 
             ResetFields();
 
-            if (!string.IsNullOrEmpty(mHeaderText))
-            {
-                if (mHeaderText.EndsWith(StringHelper.NewLine))
-                    writer.Write(mHeaderText);
-                else
-                    writer.WriteLine(mHeaderText);
-            }
+            WriteHeader(writer);
 
             string currentLine = null;
 
@@ -634,7 +630,7 @@ namespace FileHelpers.MasterDetail
                     false,
                     DefaultWriteBufferSize))
             {
-                mHeaderText = String.Empty;
+                HeaderText = String.Empty;
                 mFooterText = String.Empty;
 
                 WriteStream(writer, records);

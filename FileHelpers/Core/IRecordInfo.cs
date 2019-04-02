@@ -1,9 +1,6 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using FileHelpers.Events;
 
 namespace FileHelpers
 {
@@ -11,7 +8,6 @@ namespace FileHelpers
     /// Record information,  whether it is delimited or other details
     /// </summary>
     internal interface IRecordInfo
-        : ICloneable
     {
         /// <summary>
         /// Is the input delimited or fixed length

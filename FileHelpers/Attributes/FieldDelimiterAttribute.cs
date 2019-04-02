@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 
 namespace FileHelpers
 {
@@ -24,7 +22,7 @@ namespace FileHelpers
                 throw new BadUsageException("FileHelperMsg_FieldSeparatorNull", null);
             }
             else
-                this.Delimiter = separator;
+                Delimiter = separator;
         }
     }
 }

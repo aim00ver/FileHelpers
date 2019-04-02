@@ -1,9 +1,10 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using FileHelpers.Helpers;
+using FileHelpers.Streams;
 
 namespace FileHelpers
 {
@@ -32,10 +33,10 @@ namespace FileHelpers
        // private static object[] mEmptyArray = new object[] {};
 		
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private Encoding mSourceEncoding = Encoding.Default;
+        private Encoding mSourceEncoding = Encoding.GetEncoding(0);
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private Encoding mDestinationEncoding = Encoding.Default;
+        private Encoding mDestinationEncoding = Encoding.GetEncoding(0);
 
         private ErrorMode mErrorMode;
 
@@ -197,7 +198,7 @@ namespace FileHelpers
         public TDestination[] ReadAndTransformRecords(string sourceFile)
         {
             var engine = new FileHelperAsyncEngine<TSource>(mSourceEncoding) {
-                ErrorMode = this.ErrorMode
+                ErrorMode = ErrorMode
             };
             mSourceErrorManager = engine.ErrorManager;
             mDestinationErrorManager = new ErrorManager(ErrorMode);
@@ -219,8 +220,8 @@ namespace FileHelpers
             var sourceEngine = new FileHelperEngine<TSource>(mSourceEncoding);
             var destEngine = new FileHelperEngine<TDestination>(mDestinationEncoding);
 
-            sourceEngine.ErrorMode = this.ErrorMode;
-            destEngine.ErrorManager.ErrorMode = this.ErrorMode;
+            sourceEngine.ErrorMode = ErrorMode;
+            destEngine.ErrorManager.ErrorMode = ErrorMode;
 
             mSourceErrorManager = sourceEngine.ErrorManager;
             mDestinationErrorManager = destEngine.ErrorManager;
@@ -271,8 +272,8 @@ namespace FileHelpers
             var sourceEngine = new FileHelperAsyncEngine<TSource>();
             var destEngine = new FileHelperAsyncEngine<TDestination>();
 
-            sourceEngine.ErrorMode = this.ErrorMode;
-            destEngine.ErrorMode = this.ErrorMode;
+            sourceEngine.ErrorMode = ErrorMode;
+            destEngine.ErrorMode = ErrorMode;
 
             mSourceErrorManager = sourceEngine.ErrorManager;
             mDestinationErrorManager = destEngine.ErrorManager;

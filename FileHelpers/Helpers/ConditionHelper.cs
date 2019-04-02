@@ -1,8 +1,4 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-
-namespace FileHelpers
+namespace FileHelpers.Helpers
 {
     /// <summary>
     /// Helpers that work with conditions to make them easier to write

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 
-namespace FileHelpers
+namespace FileHelpers.Streams
 {
     /// <summary>
     /// Calculate statistics on stream,  position and total size

@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-
 
 namespace FileHelpers
 {
@@ -27,7 +25,8 @@ namespace FileHelpers
                 try {
                     DateTime.Now.ToString(value);
                 }
-                catch {
+                catch 
+                {
                     //?InvalidDateTimeConverterFormat"The format: '{0}' is invalid for the DateTime Converter."
                     throw new BadUsageException("FileHelperMsg_InvalidDateTimeConverterFormat", new List<string>() { value });
                 }

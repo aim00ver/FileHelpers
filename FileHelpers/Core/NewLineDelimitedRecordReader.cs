@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 
 namespace FileHelpers
@@ -18,7 +15,7 @@ namespace FileHelpers
         /// <param name="reader">TextReader to read and process</param>
         public NewLineDelimitedRecordReader(TextReader reader)
         {
-            this.mReader = reader;
+            mReader = reader;
         }
 
         /// <summary>

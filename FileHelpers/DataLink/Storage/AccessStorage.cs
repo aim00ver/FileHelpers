@@ -1,10 +1,12 @@
 
 using System;
 using System.Data;
-using System.Data.OleDb;
 
 namespace FileHelpers.DataLink
 {
+#if !NETCOREAPP2_0
+	using System.Data.OleDb;
+
     /// <summary>
     /// This is a base class that implements the <see cref="DataStorage"/> for
     /// Microsoft Access Files.
@@ -90,5 +92,6 @@ namespace FileHelpers.DataLink
 
         #endregion
     }
+#endif
 }
 

@@ -1,10 +1,8 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
 using System.Text;
+using FileHelpers.Helpers;
 
 namespace FileHelpers
 {
@@ -28,8 +26,9 @@ namespace FileHelpers
         /// </summary>
         /// <param name="fi">field info structure</param>
         /// <param name="sep">field separator</param>
-        internal DelimitedField(FieldInfo fi, string sep)
-            : base(fi)
+        /// <param name="defaultCultureName">Default culture name used for each properties if no converter is specified otherwise. If null, the default decimal separator (".") will be used.</param>
+        internal DelimitedField(FieldInfo fi, string sep, string defaultCultureName=null)
+            : base(fi,defaultCultureName)
         {
             QuoteChar = '\0';
             QuoteMultiline = MultilineMode.AllowForBoth;
@@ -143,7 +142,7 @@ namespace FileHelpers
                     string.Format(
                         "Delimiter '{0}' found after the last field '{1}' (the file is wrong or you need to add a field to the record class)",
                         Separator,
-                        this.FieldInfo.Name,
+                        FieldInfo.Name,
                         line.mReader.LineNumber);
 
                 throw new BadUsageException(line.mReader.LineNumber, line.mCurrentPos, msg);

@@ -1,8 +1,7 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using FileHelpers.Helpers;
 
 namespace FileHelpers
 {
@@ -66,7 +65,7 @@ namespace FileHelpers
         /// <summary>
         /// Where we are processing records from
         /// </summary>
-        public int mCurrentPos;
+        internal int mCurrentPos;
 
         /// <summary>
         /// List of whitespace characters that we want to skip

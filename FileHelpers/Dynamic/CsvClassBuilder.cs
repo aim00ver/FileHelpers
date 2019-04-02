@@ -1,6 +1,7 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using FileHelpers.Helpers;
 using FileHelpers.Options;
 
 namespace FileHelpers.Dynamic
@@ -32,7 +33,7 @@ namespace FileHelpers.Dynamic
             IgnoreEmptyLines = options.IgnoreEmptyLines;
 
             if (options.SampleFileName != string.Empty) {
-                string firstLine = CommonEngine.RawReadFirstLines(options.SampleFileName, 1);
+                string firstLine = RawReadFirstLines(options.SampleFileName, 1);
 
                 if (options.HeaderLines > 0) {
                     foreach (var header in firstLine.Split(options.HeaderDelimiter == char.MinValue
@@ -53,9 +54,6 @@ namespace FileHelpers.Dynamic
                 throw new BadUsageException("FileHelperMsg_CSVNotEnoughInfo", null);
             }
         }
-
-        //private static Regex mRemoveBlanks = new Regex(@"\W", System.Text.RegularExpressions.RegexOptions.Compiled);
-
 
         /// <summary>Add a new Delimited field to the current class.</summary>
         /// <param name="fieldName">The Name of the field.</param>
@@ -96,8 +94,27 @@ namespace FileHelpers.Dynamic
 
             for (int i = 0; i < number; i++) {
                 int current = i + initFields + 1;
-                AddField(prefix + (current).ToString());
+                AddField(prefix + current);
             }
+            }
+
+        private static string RawReadFirstLines(string file, int lines)
+        {
+            var sb = new StringBuilder(Math.Min(lines * 50, 10000));
+
+            var reader = new StreamReader(file);
+
+            for (int i = 0; i < lines; i++)
+            {
+                string line = reader.ReadLine();
+                if (line == null)
+                    break;
+                else
+                    sb.AppendLine(line);
+            }
+            reader.Close();
+
+            return sb.ToString();
         }
     }
 }

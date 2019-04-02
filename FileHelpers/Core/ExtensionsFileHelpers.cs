@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Text;
+﻿using System.Data;
 
 namespace FileHelpers
 {
-
-#if DOTNET_4
-
     /// <summary>
     /// Set of Extension methods to be exposed to end users 
     /// of the FileHelpers API.
@@ -18,7 +12,6 @@ namespace FileHelpers
         /// Generic extension method for arrays that returns the array records
         /// in a DataTable.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="records">The array to transform into a DataTable</param>
         /// <returns>The array records in a DataTable.</returns>
         public static DataTable ToDataTable<T>(this T[] records)
@@ -27,7 +20,4 @@ namespace FileHelpers
             return ri.Operations.RecordsToDataTable(records);
         }
     }
-
-#endif
-
 }

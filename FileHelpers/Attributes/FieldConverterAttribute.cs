@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -204,7 +203,10 @@ namespace FileHelpers
                 }
             }
             else if (convType.IsEnum)
-                Converter = new EnumConverter(convType);
+                if (args.Length == 0)
+                    Converter = new EnumConverter(convType);
+                else
+                    Converter = new EnumConverter(convType, args[0] as string);
 
             else
                 //!"The custom converter must inherit from ConverterBase"

@@ -1,10 +1,9 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 
-namespace FileHelpers
+namespace FileHelpers.Helpers
 {
     /// <summary>
     /// Helper classes for strings
@@ -313,7 +312,7 @@ namespace FileHelpers
         /// <param name="value">The string to compare.</param>
         /// <param name="comparisonType">string comparison type.</param>
         /// <returns></returns>
-        public static bool StartsWithIgnoringWhiteSpaces (string source, string value, System.StringComparison comparisonType)
+        public static bool StartsWithIgnoringWhiteSpaces (string source, string value, StringComparison comparisonType)
         {
             if (value == null)
             {

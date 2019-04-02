@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace FileHelpers
+namespace FileHelpers.Streams
 {
     /// <summary>
     /// Enable reading a string as a stream
@@ -24,9 +22,9 @@ namespace FileHelpers
         public InternalStringReader(string s)
         {
             if (s == null)
-                throw new ArgumentNullException("s");
-            this.mS = s;
-            this.Length = s.Length;
+                throw new ArgumentNullException(nameof(s));
+            mS = s;
+            Length = s.Length;
         }
 
         /// <summary>
@@ -44,7 +42,7 @@ namespace FileHelpers
         /// </summary>
         public override void Close()
         {
-            this.Dispose(true);
+            Dispose(true);
         }
 
         /// <summary>
@@ -53,9 +51,9 @@ namespace FileHelpers
         /// <param name="disposing"></param>
         protected override void Dispose(bool disposing)
         {
-            this.mS = null;
-            this.Position = 0;
-            this.Length = 0;
+            mS = null;
+            Position = 0;
+            Length = 0;
             base.Dispose(disposing);
         }
 
@@ -65,11 +63,11 @@ namespace FileHelpers
         /// <returns>Next character as an integer</returns>
         public override int Peek()
         {
-            if (this.mS == null)
+            if (mS == null)
                 throw new ObjectDisposedException(null, "The Reader is Closed");
-            if (this.Position == this.Length)
+            if (Position == Length)
                 return -1;
-            return this.mS[this.Position];
+            return mS[Position];
         }
 
         /// <summary>
@@ -78,11 +76,11 @@ namespace FileHelpers
         /// <returns>next character as an integer</returns>
         public override int Read()
         {
-            if (this.mS == null)
+            if (mS == null)
                 throw new ObjectDisposedException(null, "The Reader is Closed");
-            if (this.Position == this.Length)
+            if (Position == Length)
                 return -1;
-            return this.mS[this.Position = this.Position + 1];
+            return mS[Position = Position + 1];
         }
 
         /// <summary>
@@ -102,21 +100,21 @@ namespace FileHelpers
         public override int Read([In, Out] char[] buffer, int index, int count)
         {
             if (buffer == null)
-                throw new ArgumentNullException("buffer");
+                throw new ArgumentNullException(nameof(buffer));
             if (index < 0)
-                throw new ArgumentOutOfRangeException("index");
+                throw new ArgumentOutOfRangeException(nameof(index));
             if (count < 0)
-                throw new ArgumentOutOfRangeException("count");
+                throw new ArgumentOutOfRangeException(nameof(count));
             if ((buffer.Length - index) < count)
                 throw new ArgumentException("offset");
-            if (this.mS == null)
+            if (mS == null)
                 throw new ObjectDisposedException(null, "The Reader is Closed");
-            int num = this.Length - this.Position;
+            int num = Length - Position;
             if (num > 0) {
                 if (num > count)
                     num = count;
-                this.mS.CopyTo(this.Position, buffer, index, num);
-                this.Position = this.Position + num;
+                mS.CopyTo(Position, buffer, index, num);
+                Position = Position + num;
             }
             return num;
         }
@@ -127,28 +125,28 @@ namespace FileHelpers
         /// <returns>Line without line end</returns>
         public override string ReadLine()
         {
-            if (this.mS == null)
+            if (mS == null)
                 throw new ObjectDisposedException(null, "The Reader is Closed");
-            int num = this.Position;
-            while (num < this.Length) {
-                char ch = this.mS[num];
+            int num = Position;
+            while (num < Length) {
+                char ch = mS[num];
                 switch (ch) {
                     case '\r':
                     case '\n':
                     {
-                        string str = this.mS.Substring(this.Position, num - this.Position);
-                        this.Position = num + 1;
-                        if (((ch == '\r') && (this.Position < this.Length)) &&
-                            (this.mS[this.Position] == '\n'))
-                            this.Position = this.Position + 1;
+                        string str = mS.Substring(Position, num - Position);
+                        Position = num + 1;
+                        if (((ch == '\r') && (Position < Length)) &&
+                            (mS[Position] == '\n'))
+                            Position = Position + 1;
                         return str;
                     }
                 }
                 num++;
             }
-            if (num > this.Position) {
-                string str2 = this.mS.Substring(this.Position, num - this.Position);
-                this.Position = num;
+            if (num > Position) {
+                string str2 = mS.Substring(Position, num - Position);
+                Position = num;
                 return str2;
             }
             return null;
@@ -161,13 +159,13 @@ namespace FileHelpers
         public override string ReadToEnd()
         {
             string str;
-            if (this.mS == null)
+            if (mS == null)
                 throw new ObjectDisposedException(null, "The Reader is Closed");
-            if (this.Position == 0)
-                str = this.mS;
+            if (Position == 0)
+                str = mS;
             else
-                str = this.mS.Substring(this.Position, this.Length - this.Position);
-            this.Position = this.Length;
+                str = mS.Substring(Position, Length - Position);
+            Position = Length;
             return str;
         }
     }

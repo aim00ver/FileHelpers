@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Xml;
 
@@ -103,8 +101,8 @@ namespace FileHelpers.Dynamic
         /// <param name="writer">XML writer to serialise to</param>
         internal override void WriteExtraElements(XmlHelper writer)
         {
-            writer.WriteElement("AlignMode", this.AlignMode.ToString(), "Left");
-            writer.WriteElement("AlignChar", this.AlignChar.ToString(), " ");
+            writer.WriteElement("AlignMode", AlignMode.ToString(), "Left");
+            writer.WriteElement("AlignChar", AlignChar.ToString(), " ");
         }
 
         /// <summary>

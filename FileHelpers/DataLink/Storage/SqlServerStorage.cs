@@ -1,10 +1,12 @@
 
 using System;
 using System.Data;
-using System.Data.SqlClient;
 
 namespace FileHelpers.DataLink
 {
+#if !NETSTANDARD2_0
+	using System.Data.SqlClient;
+
     /// <summary>
     /// This is a base class that implements the <see cref="DataStorage"/> for
     /// Microsoft SqlServer.
@@ -171,5 +173,5 @@ namespace FileHelpers.DataLink
 
         #endregion
     }
+#endif
 }
-

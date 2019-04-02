@@ -41,6 +41,7 @@
     </UpgradeBackupLocation>
     <OldToolsVersion>3.5</OldToolsVersion>
     <TargetFrameworkProfile />
+    <CopyNuGetImplementations>false</CopyNuGetImplementations>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>..\..\Test.Next.Net\NN\App\Libs\</OutputPath>
@@ -54,7 +55,8 @@
     <DebugSymbols>true</DebugSymbols>
     <FileAlignment>4096</FileAlignment>
     <NoStdLib>false</NoStdLib>
-    <NoWarn>1591</NoWarn>
+    <NoWarn>
+    </NoWarn>
     <Optimize>false</Optimize>
     <RegisterForComInterop>false</RegisterForComInterop>
     <RemoveIntegerChecks>false</RemoveIntegerChecks>
@@ -62,7 +64,7 @@
     <WarningLevel>4</WarningLevel>
     <DebugType>full</DebugType>
     <ErrorReport>prompt</ErrorReport>
-    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -72,7 +74,7 @@
     <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
-    <DefineConstants>TRACE;NET_2_0</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <DocumentationFile>FileHelpers.xml</DocumentationFile>
     <DebugSymbols>false</DebugSymbols>
     <FileAlignment>4096</FileAlignment>
@@ -187,7 +189,7 @@
     <Compile Include="Core\IRecordReader.cs" />
     <Compile Include="Core\RecordOperations.cs" />
     <Compile Include="Core\ReflectionHelper.cs" />
-    <Compile Include="DataLink\DataBaseHelper.cs" />
+    <Compile Include="DataLink\Storage\DataBaseHelper.cs" />
     <Compile Include="DataLink\ExcelStorageBase.cs" />
     <Compile Include="DataLink\FileDataLink.cs" />
     <Compile Include="DataLink\GenericDataLink.cs" />
@@ -209,6 +211,9 @@
     <Compile Include="Dynamic\FixedFieldBuilder.cs" />
     <Compile Include="Dynamic\FixedLengthClassBuilder.cs" />
     <Compile Include="Dynamic\XmlHelper.cs" />
+    <Compile Include="Engines\CsvEngine.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Engines\EventEngineBase.cs" />
     <Compile Include="Engines\IFileHelperAsyncEngine.cs" />
     <Compile Include="Engines\IFileHelperEngine.cs" />
@@ -222,9 +227,6 @@
     </Compile>
     <Compile Include="Csv\RecordIndexer.cs" />
     <Compile Include="Engines\CommonEngine.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Engines\CsvEngine.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Engines\DelimitedFileEngine.cs">
@@ -297,7 +299,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ErrorHandling\NullValueNotFoundException.cs" />
-    <Compile Include="ErrorHandling\DynamicCompilationException.cs">
+    <Compile Include="Dynamic\DynamicCompilationException.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Events\BeforeReadEventArgs.cs" />
@@ -333,7 +335,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Helpers\TypeHelper.cs" />
-    <Compile Include="Helpers\CsvOptions.cs">
+    <Compile Include="Options\CsvOptions.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Helpers\ExHelper.cs">

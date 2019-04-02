@@ -1,12 +1,10 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace FileHelpers
 {
     /// <summary>An internal class used to store information about the Record Type.</summary>
-    /// <remarks>Is public to provide extensibility of DataStorage from outside the library.</remarks>
     internal sealed partial class RecordInfo
     {
         private static class RecordInfoFactory
@@ -21,12 +19,11 @@ namespace FileHelpers
             /// <returns>Record Information (settings and functions)</returns>
             public static IRecordInfo Resolve(Type type)
             {
-                RecordInfo res;
-
                 lock (type) {
+                RecordInfo res;
                     lock (mRecordInfoCache) {
                         if (mRecordInfoCache.TryGetValue(type, out res))
-                            return (IRecordInfo) res.Clone();
+                            return res.Clone();
                     }
 
                     // class check cache / lock / check cache  and create if null algorythm
@@ -37,7 +34,7 @@ namespace FileHelpers
                             mRecordInfoCache.Add(type, res);
                     }
 
-                    return (IRecordInfo) res.Clone();
+                    return res.Clone();
                 }
             }
         }
@@ -51,7 +48,7 @@ namespace FileHelpers
             AdjustParentIndex();
         }
 
-        internal void AdjustParentIndex()
+        private void AdjustParentIndex()
         {
             for (int i = 0; i < Fields.Length; i++)
             {

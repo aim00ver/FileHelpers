@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
@@ -88,7 +87,9 @@ namespace FileHelpers
         public static DataTable CsvToDataTable(string filename, CsvOptions options)
         {
             var engine = new CsvEngine(options);
+#pragma warning disable 618
             return engine.ReadFileAsDT(filename);
+#pragma warning restore 618
         }
 
 
@@ -105,8 +106,8 @@ namespace FileHelpers
 
 
         /// <summary>
-        /// Simply dumps the DataTable contents to a delimited file using a ','
-        /// as delimiter.
+        /// Simply dumps the DataTable contents to a delimited file using
+        /// <paramref name="delimiter"/> as delimiter.
         /// </summary>
         /// <param name="dt">The source Data Table</param>
         /// <param name="filename">The destination file.</param>
@@ -127,24 +128,24 @@ namespace FileHelpers
         public static void DataTableToCsv(DataTable dt, string filename, CsvOptions options)
         {
             using (var fs = new StreamWriter(filename, false, options.Encoding, DefaultWriteBufferSize)) {
-                foreach (DataRow dr in dt.Rows) {
-                    object[] fields = dr.ItemArray;
-
-                    for (int i = 0; i < fields.Length; i++) {
-                        if (i > 0)
-                            fs.Write(options.Delimiter);
-
-                        fs.Write(options.ValueToString(fields[i]));
+                // output header 
+                if (options.IncludeHeaderNames)
+                {
+                    var columnNames = new List<object>();
+                    foreach (DataColumn dataColumn in dt.Columns)
+                    {
+                        columnNames.Add(dataColumn.ColumnName);
                     }
-                    fs.Write(StringHelper.NewLine);
+                    Append(fs, options, columnNames);
+                }
+                foreach (DataRow dr in dt.Rows)
+                {
+                    object[] fields = dr.ItemArray;
+                    Append(fs, options, fields);
                 }
                 fs.Close();
             }
         }
-
-//		private static string ObjectString(CsvOptions options, object o)
-//		{
-//		}
 
         #endregion
 
@@ -184,6 +185,19 @@ namespace FileHelpers
         {
             var cb = new CsvClassBuilder(options);
             return cb.CreateRecordClass();
+        }
+
+        private static void Append(TextWriter fs, CsvOptions options, IList<object> fields)
+        {
+            for (int i = 0; i < fields.Count; i++)
+            {
+                if (i > 0)
+                {
+                    fs.Write(options.Delimiter);
+                }
+                fs.Write(options.ValueToString(fields[i]));
+            }
+            fs.Write(Environment.NewLine);
         }
     }
 }

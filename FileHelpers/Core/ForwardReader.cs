@@ -1,15 +1,12 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Text;
+using FileHelpers.Helpers;
 
 namespace FileHelpers
 {
     internal sealed class ForwardReader
         : IDisposable
     {
-        //internal static readonly char[] mEOF = StringHelper.NewLine.ToCharArray();
-
         /// <summary>
         /// Return file record by record
         /// </summary>
@@ -20,13 +17,9 @@ namespace FileHelpers
         /// </summary>
         private readonly string[] mFowardStrings;
 
-        private int mForwardIndex = 0;
+        private int mForwardIndex;
 
         #region "  Constructors  "
-
-        //internal ForwardReader(IRecordReader reader)
-        //    : this(reader, 0, 0)
-        //{ }
 
         /// <summary>
         /// Read a Record handler forward,  optionally skipping n lines and starting at a record number > 0
@@ -50,13 +43,13 @@ namespace FileHelpers
             mLineNumber = startLine;
 
             mFowardStrings = new string[mFowardLines + 1];
-            mRemaingLines = mFowardLines + 1;
+            mRemainingLines = mFowardLines + 1;
 
             for (int i = 0; i < mFowardLines + 1; i++) {
                 mFowardStrings[i] = mReader.ReadRecordString();
                 mLineNumber++;
                 if (mFowardStrings[i] == null) {
-                    mRemaingLines = i;
+                    mRemainingLines = i;
                     break;
                 }
             }
@@ -64,23 +57,11 @@ namespace FileHelpers
 
         #endregion
 
-        #region "  RemainingLines  "
-
-        private int mRemaingLines = 0;
-
-        /// <summary>
-        /// Number of lines in the buffer
-        /// </summary>
-        public int RemainingLines
-        {
-            get { return mRemaingLines; }
-        }
-
-        #endregion
+        private int mRemainingLines;
 
         #region "  LineNumber  "
 
-        private int mLineNumber = 0;
+        private int mLineNumber;
 
         /// <summary>
         /// Record number within the file - normally the line number
@@ -92,15 +73,9 @@ namespace FileHelpers
 
         #endregion
 
-        //		
-        //		int mPos = 0;
-        //		int MaxRecordSize = 1024 * 8;
-        //		char[] mBuffer;
-        //	
-
         #region "  DiscardForward  "
 
-        private bool mDiscardForward = false;
+        private bool mDiscardForward;
 
         public bool DiscardForward
         {
@@ -112,7 +87,7 @@ namespace FileHelpers
 
         #region "  FowardLines  "
 
-        private readonly int mFowardLines = 0;
+        private readonly int mFowardLines;
 
         public int FowardLines
         {
@@ -125,20 +100,20 @@ namespace FileHelpers
 
         public string ReadNextLine()
         {
-            if (mRemaingLines <= 0)
+            if (mRemainingLines <= 0)
                 return null;
             else {
                 string res = mFowardStrings[mForwardIndex];
 
-                if (mRemaingLines == (mFowardLines + 1)) {
+                if (mRemainingLines == (mFowardLines + 1)) {
                     mFowardStrings[mForwardIndex] = mReader.ReadRecordString();
                     mLineNumber++;
 
                     if (mFowardStrings[mForwardIndex] == null)
-                        mRemaingLines--;
+                        mRemainingLines--;
                 }
                 else {
-                    mRemaingLines--;
+                    mRemainingLines--;
                     if (mDiscardForward)
                         return null;
                 }
@@ -159,7 +134,7 @@ namespace FileHelpers
             {
                 var sb = new StringBuilder(100);
 
-                for (int i = 0; i < mRemaingLines + 1; i++)
+                for (int i = 0; i < mRemainingLines + 1; i++)
                     sb.Append(mFowardStrings[(mForwardIndex + i)%(mFowardLines + 1)] + StringHelper.NewLine);
 
                 return sb.ToString();

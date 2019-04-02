@@ -1,13 +1,11 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 using FileHelpers.Events;
 using FileHelpers.Options;
-
-//using Container=FileHelpers.Container;
 
 namespace FileHelpers
 {
@@ -22,9 +20,7 @@ namespace FileHelpers
         internal const int DefaultWriteBufferSize = 16 * 1024;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal IRecordInfo RecordInfo { get; private set; }
-
-        //private readonly IRecordInfo mRecordInfo;
+        internal IRecordInfo RecordInfo { get; }
 
         #region "  Constructor  "
 
@@ -33,7 +29,7 @@ namespace FileHelpers
         /// </summary>
         /// <param name="recordType">Class to base engine on</param>
         internal EngineBase(Type recordType)
-            : this(recordType, Encoding.Default) {}
+            : this(recordType, Encoding.GetEncoding(0)) { }
 
         /// <summary>
         /// Create and engine on type with specified encoding
@@ -45,13 +41,14 @@ namespace FileHelpers
             if (recordType == null)
                 throw new BadUsageException("FileHelperMsg_NullRecordClass", null);
 
-            if (recordType.IsValueType) {
+            if (recordType.IsValueType) 
+            {
                 //throw new BadUsageException(Messages.Errors.StructRecordClass.RecordType(recordType.Name).Text);
                 throw new BadUsageException("FileHelperMsg_StructRecordClass", new List<string>() { recordType.Name });
             }
 
             mRecordType = recordType;
-            RecordInfo = FileHelpers.RecordInfo.Resolve(recordType); // Container.Resolve<IRecordInfo>(recordType);
+            RecordInfo = FileHelpers.RecordInfo.Resolve(recordType);
             mEncoding = encoding;
 
             CreateRecordOptions();
@@ -111,7 +108,8 @@ namespace FileHelpers
                 delimiter = ((DelimitedRecordOptions) Options).Delimiter;
 
             var res = new StringBuilder();
-            for (int i = 0; i < RecordInfo.Fields.Length; i++) {
+            for (int i = 0; i < RecordInfo.Fields.Length; i++)
+            {
                 if (i > 0)
                     res.Append(delimiter);
 
@@ -135,19 +133,8 @@ namespace FileHelpers
             get { return mRecordType; }
         }
 
-        #endregion
-
-        #region "  HeaderText  "
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal string mHeaderText = String.Empty;
-
         /// <summary>The Read Header in the last Read operation. If any.</summary>
-        public string HeaderText
-        {
-            get { return mHeaderText; }
-            set { mHeaderText = value; }
-        }
+        public string HeaderText { get; set; } = string.Empty;
 
         #endregion
 
@@ -164,6 +151,17 @@ namespace FileHelpers
             set { mFooterText = value; }
         }
 
+        internal void WriteFooter(TextWriter writer)
+        {
+            if (!string.IsNullOrEmpty(mFooterText))
+            {
+                if (mFooterText.EndsWith(NewLineForWrite))
+                    writer.Write(mFooterText);
+                else
+                    writer.WriteLine(mFooterText);
+            }
+        }
+
         #endregion
 
         #region "  Encoding  "
@@ -173,7 +171,7 @@ namespace FileHelpers
         /// Default is the system's current ANSI code page.
         /// </summary>
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        protected Encoding mEncoding = Encoding.Default;
+        protected Encoding mEncoding = Encoding.GetEncoding(0);
 
         /// <summary>
         /// The encoding to Read and Write the streams. 
@@ -184,6 +182,32 @@ namespace FileHelpers
         {
             get { return mEncoding; }
             set { mEncoding = value; }
+        }
+
+        #endregion
+
+        #region "  NewLineForWrite  "
+        /// <summary>
+        /// Newline string to be used when engine writes to file. 
+        /// Default is the system's newline setting (System.Environment.NewLine).
+        /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private string mNewLineForWrite = Environment.NewLine;
+
+        /// <summary>
+        /// Newline string to be used when engine writes to file. 
+        /// Default is the system's newline setting (System.Environment.NewLine).
+        /// </summary>
+        /// <value>Default is the system's newline setting.</value>
+        public string NewLineForWrite
+        {
+            get { return mNewLineForWrite; }
+            set
+            {
+                if (string.IsNullOrEmpty(value))
+                    throw new ArgumentException("NewLine string must not be null or empty");
+                mNewLineForWrite = value;
+            }
         }
 
         #endregion
@@ -286,5 +310,16 @@ namespace FileHelpers
         /// Allows you to change some record layout options at runtime
         /// </summary>
         public RecordOptions Options { get; private set; }
+
+        internal void WriteHeader(TextWriter textWriter)
+        {
+            if (!string.IsNullOrEmpty(HeaderText))
+            {
+                if (HeaderText.EndsWith(NewLineForWrite))
+                    textWriter.Write(HeaderText);
+                else
+                    textWriter.WriteLine(HeaderText);
+            }
+        }
     }
 }

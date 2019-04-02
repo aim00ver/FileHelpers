@@ -1,9 +1,7 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Reflection;
 
-namespace FileHelpers
+namespace FileHelpers.Helpers
 {
     internal static class Attributes
     {

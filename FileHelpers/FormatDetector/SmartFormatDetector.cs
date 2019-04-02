@@ -1,9 +1,9 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using FileHelpers.Dynamic;
 using System.IO;
+using FileHelpers.Helpers;
 
 namespace FileHelpers.Detection
 {
@@ -53,7 +53,7 @@ namespace FileHelpers.Detection
             set { mMaxSampleLines = value; }
         }
 
-        private Encoding mEncoding = Encoding.Default;
+        private Encoding mEncoding = Encoding.GetEncoding(0);
 
         /// <summary>The encoding to Read and Write the streams.</summary>
         /// <remarks>Default is the system's current ANSI code page.</remarks>
@@ -481,28 +481,73 @@ namespace FileHelpers.Detection
             var res = new List<string[]>();
 
             foreach (var file in files)
-                res.Add(CommonEngine.RawReadFirstLinesArray(file, nroOfLines, mEncoding));
+                res.Add(RawReadFirstLinesArray(file, nroOfLines, mEncoding));
 
             return res.ToArray();
         }
 
-
-        private string[][] GetSampleLines(IEnumerable<TextReader> files, int nroOfLines)
+        private static string[][] GetSampleLines(IEnumerable<TextReader> files, int nroOfLines)
         {
             var res = new List<string[]>();
 
             foreach (var file in files)
-                res.Add(CommonEngine.RawReadFirstLinesArray(file, nroOfLines, mEncoding));
+                res.Add(RawReadFirstLinesArray(file, nroOfLines));
 
             return res.ToArray();
         }
 
-        private int NumberOfLines(string[][] data)
+        private static int NumberOfLines(string[][] data)
         {
             int lines = 0;
             foreach (var fileData in data)
                 lines += fileData.Length;
             return lines;
+        }
+
+        /// <summary>
+        /// Shortcut method to read the first n lines of a text file as array.
+        /// </summary>
+        /// <param name="file">The file name</param>
+        /// <param name="lines">The number of lines to read.</param>
+        /// <param name="encoding">The Encoding used to read the file</param>
+        /// <returns>The first n lines of the file.</returns>
+        private static string[] RawReadFirstLinesArray(string file, int lines, Encoding encoding)
+        {
+            var res = new List<string>(lines);
+            using (var reader = new StreamReader(file, encoding))
+            {
+                for (int i = 0; i < lines; i++)
+                {
+                    string line = reader.ReadLine();
+                    if (line == null)
+                        break;
+                    else
+                        res.Add(line);
+                }
+            }
+
+            return res.ToArray();
+        }
+
+        /// <summary>
+        /// Shortcut method to read the first n lines of a text file as array.
+        /// </summary>
+        /// <param name="stream">The text reader name</param>
+        /// <param name="lines">The number of lines to read.</param>
+        /// <returns>The first n lines of the file.</returns>
+        private static string[] RawReadFirstLinesArray(TextReader stream, int lines)
+        {
+            var res = new List<string>(lines);
+            for (int i = 0; i < lines; i++)
+            {
+                string line = stream.ReadLine();
+                if (line == null)
+                    break;
+                else
+                    res.Add(line);
+            }
+
+            return res.ToArray();
         }
 
         /// <summary>

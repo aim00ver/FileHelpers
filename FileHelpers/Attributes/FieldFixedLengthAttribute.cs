@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 
 namespace FileHelpers
 {
@@ -18,7 +16,7 @@ namespace FileHelpers
         public FieldFixedLengthAttribute(int length)
         {
             if (length > 0)
-                this.Length = length;
+                Length = length;
             else
                 //?ZeroFieldFixedLength"The FieldFixedLength attribute must be > 0"
                 throw new BadUsageException("FileHelperMsg_ZeroFieldFixedLength", null);

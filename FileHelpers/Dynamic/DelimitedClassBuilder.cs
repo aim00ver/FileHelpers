@@ -1,10 +1,8 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
-using System.Reflection;
 using System.Xml;
+using FileHelpers.Helpers;
 
 namespace FileHelpers.Dynamic
 {
@@ -139,7 +137,7 @@ namespace FileHelpers.Dynamic
                     else
                         return "\"" + delimiter + "\"";
                 default:
-                    throw new ArgumentOutOfRangeException("lang");
+                    throw new ArgumentOutOfRangeException(nameof(lang));
             }
         }
 
@@ -151,7 +149,7 @@ namespace FileHelpers.Dynamic
         {
             writer.Writer.WriteStartElement("DelimitedClass");
             writer.Writer.WriteStartAttribute("Delimiter", "");
-            writer.Writer.WriteString(this.Delimiter);
+            writer.Writer.WriteString(Delimiter);
             writer.Writer.WriteEndAttribute();
         }
 

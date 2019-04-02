@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -7,7 +6,7 @@ namespace FileHelpers
 {
     /// <summary>
     /// Engine used to create diff files based on the
-    /// <see cref="IComparableRecord{T}"/> interface.
+    /// <see cref="IComparable{T}"/> interface.
     /// </summary>
     /// <typeparam name="T">The record type.</typeparam>
     [DebuggerDisplay(
@@ -52,10 +51,10 @@ namespace FileHelpers
             FileHelperEngine<T> engine = CreateEngineAndClearErrors();
 
             T[] olds = engine.ReadFile(sourceFile);
-            this.ErrorManager.AddErrors(engine.ErrorManager);
+            ErrorManager.AddErrors(engine.ErrorManager);
 
             T[] currents = engine.ReadFile(newFile);
-            this.ErrorManager.AddErrors(engine.ErrorManager);
+            ErrorManager.AddErrors(engine.ErrorManager);
 
             var news = new List<T>();
 
@@ -67,11 +66,11 @@ namespace FileHelpers
         private FileHelperEngine<T> CreateEngineAndClearErrors()
         {
             var engine = new FileHelperEngine<T> {
-                Encoding = this.Encoding
+                Encoding = Encoding
             };
 
             ErrorManager.ClearErrors();
-            engine.ErrorManager.ErrorMode = this.ErrorManager.ErrorMode;
+            engine.ErrorManager.ErrorMode = ErrorManager.ErrorMode;
 
             return engine;
         }
@@ -88,9 +87,9 @@ namespace FileHelpers
             FileHelperEngine<T> engine = CreateEngineAndClearErrors();
 
             T[] olds = engine.ReadFile(file1);
-            this.ErrorManager.AddErrors(engine.ErrorManager);
+            ErrorManager.AddErrors(engine.ErrorManager);
             T[] currents = engine.ReadFile(file2);
-            this.ErrorManager.AddErrors(engine.ErrorManager);
+            ErrorManager.AddErrors(engine.ErrorManager);
 
             var news = new List<T>();
 
@@ -157,9 +156,9 @@ namespace FileHelpers
             FileHelperEngine<T> engine = CreateEngineAndClearErrors();
 
             T[] olds = engine.ReadFile(file1);
-            this.ErrorManager.AddErrors(engine.ErrorManager);
+            ErrorManager.AddErrors(engine.ErrorManager);
             T[] currents = engine.ReadFile(file2);
-            this.ErrorManager.AddErrors(engine.ErrorManager);
+            ErrorManager.AddErrors(engine.ErrorManager);
 
             var news = new List<T>();
 
@@ -185,7 +184,7 @@ namespace FileHelpers
             T[] res = OnlyNewRecords(sourceFile, newFile);
 
             engine.WriteFile(destFile, res);
-            this.ErrorManager.AddErrors(engine.ErrorManager);
+            ErrorManager.AddErrors(engine.ErrorManager);
             return res;
         }
     }

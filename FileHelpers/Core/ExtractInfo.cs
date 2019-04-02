@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace FileHelpers
@@ -42,17 +40,17 @@ namespace FileHelpers
         /// <summary>
         /// Contains the line of data read
         /// </summary>
-        public LineInfo mLine;
+        private readonly LineInfo mLine;
 
         /// <summary>
         /// Position of first character of the field in mLine.mLine
         /// </summary>
-        public int ExtractedFrom;
+        public readonly int ExtractedFrom;
 
         /// <summary>
         /// Position of last character of the field in mLine.mLine
         /// </summary>
-        public int ExtractedTo;
+        public readonly int ExtractedTo;
 
         /// <summary>
         /// Extract the rest of the line into my variable
@@ -91,44 +89,6 @@ namespace FileHelpers
             ExtractedTo = 0;
             mCustomExtractedString = customExtract;
         }
-
-        //public void TrimStart(char[] sortedToTrim)
-        //{
-        //    if (mCustomExtractedString != null)
-        //        mCustomExtractedString = mCustomExtractedString.TrimStart(sortedToTrim);
-        //    else
-        //        while (ExtractedFrom <= ExtractedTo &&
-        //               Array.BinarySearch(sortedToTrim, mLine.mLine[ExtractedFrom]) >= 0)
-        //            ExtractedFrom++;
-        //}
-
-        //public void TrimEnd(char[] sortedToTrim)
-        //{
-        //    if (mCustomExtractedString != null)
-        //        mCustomExtractedString = mCustomExtractedString.TrimEnd(sortedToTrim);
-        //    else
-        //        while (ExtractedTo >= ExtractedFrom && 
-        //               Array.BinarySearch(sortedToTrim, mLine.mLine[ExtractedTo]) >= 0)
-        //            ExtractedTo--;
-        //}
-
-        //public void TrimBoth(char[] sortedToTrim)
-        //{
-        //    if (mCustomExtractedString != null)
-        //        mCustomExtractedString = mCustomExtractedString.Trim(sortedToTrim);
-        //    else
-        //    {
-        //        while(ExtractedFrom <= ExtractedTo && Array.BinarySearch(sortedToTrim, mLine.mLine[ExtractedFrom]) >= 0)
-        //        {
-        //            ExtractedFrom++;
-        //        }
-
-        //        while(ExtractedTo >= ExtractedFrom && Array.BinarySearch(sortedToTrim, mLine.mLine[ExtractedTo]) >= 0)
-        //        {
-        //            ExtractedTo--;
-        //        }
-        //    }
-        //}
 
         internal static readonly ExtractedInfo Empty = new ExtractedInfo(string.Empty);
 
